@@ -21,21 +21,18 @@ public class ReverseEffect implements AudioEffect {
      * Метод для обработки эффекта на буффер.
      *
      * @param source исходный буффер
-     * @return обработаный буффер
      */
     @Override
-    public ByteBuffer process(ByteBuffer source) {
+    public void process(ByteBuffer source) {
         int frameSize = format.bytesPerSample();
         int size = source.limit();
-        ByteBuffer processed = ByteBuffer.allocateDirect(size);
         byte[] chunk = new byte[frameSize];
 
         for (int i = size - frameSize; i >= 0; i -= frameSize) {
             source.position(i);
             source.get(chunk);
-            processed.put(chunk);
+            source.position(i);
+            source.put(chunk);
         }
-
-        return processed.flip();
     }
 }

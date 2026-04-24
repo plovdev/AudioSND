@@ -146,34 +146,7 @@ public class OverdriveEffect implements AudioEffect {
     // ==================== ОСНОВНАЯ ОБРАБОТКА ====================
 
     @Override
-    public ByteBuffer process(ByteBuffer source) {
-        if (format == null || needsReset) {
-            throw new IllegalStateException("Effect not initialized. Call setup() first.");
-        }
-
-        source.order(format.byteOrder());
-        source.rewind();
-
-        int totalSamples = source.remaining() / format.bytesPerSample();
-        ByteBuffer processed = ByteBuffer.allocateDirect(source.remaining());
-        processed.order(format.byteOrder());
-
-        for (int i = 0; i < totalSamples; i++) {
-            for (int ch = 0; ch < channels; ch++) {
-                float sample = readSample(source, bytesPerSample);
-                float processedSample = processSample(sample);
-                writeSample(processed, processedSample, bytesPerSample);
-            }
-        }
-
-        processed.flip();
-        return processed;
-    }
-
-    /**
-     * In-place обработка (для минимальной задержки в реальном времени)
-     */
-    public void processInPlace(ByteBuffer buffer) {
+    public void process(ByteBuffer buffer) {
         if (format == null || needsReset) {
             throw new IllegalStateException("Effect not initialized. Call setup() first.");
         }

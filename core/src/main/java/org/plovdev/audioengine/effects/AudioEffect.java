@@ -28,22 +28,5 @@ public interface AudioEffect {
      */
     void setup(@NotNull TrackFormat format);
 
-    /**
-     * Applies the effect to a single audio chunk.
-     * <p>
-     * Implementation must not rely on input buffer's current position.
-     * Always call {@link ByteBuffer#rewind()} or {@link ByteBuffer#position(int)}
-     * if sequential reading from start is required.
-     * </p>
-     * <p>
-     * Output buffer always has position = 0, limit = data size.
-     * Output buffer may be the same instance as input or a new one.
-     * Caller is responsible for discarding/recycling the returned buffer.
-     * </p>
-     *
-     * @param source input audio chunk
-     * @return processed audio chunk with position = 0, limit = data size
-     */
-    @NotNull
-    ByteBuffer process(@NotNull ByteBuffer source);
+    void process(@NotNull ByteBuffer source);
 }

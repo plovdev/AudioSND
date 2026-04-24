@@ -26,7 +26,7 @@ public class GuitarSimpleExample {
     private static final Logger log = LoggerFactory.getLogger(GuitarSimpleExample.class);
     private static final AtomicBoolean isRunning = new AtomicBoolean(true);
 
-    void main(String[] args) {
+    static void main(String[] args) {
         boolean needWrite = Boolean.parseBoolean(args[0]);
         String fileName = args[1];
 
@@ -56,7 +56,7 @@ public class GuitarSimpleExample {
                 log.info("Start cycle: isRunning: {}", isRunning.get());
                 while (isRunning.get()) {
                     input.read(buffer);
-                    effect.processInPlace(buffer);
+                    effect.process(buffer);
                     output.write(buffer);
                     buffer.position(0);
                     if (needWrite) {
@@ -79,7 +79,7 @@ public class GuitarSimpleExample {
         }
     }
 
-    private void runStopThread() {
+    private static void runStopThread() {
         Thread.startVirtualThread(() -> {
             try (Scanner scanner = new Scanner(System.in)) {
                 String stop = scanner.nextLine();

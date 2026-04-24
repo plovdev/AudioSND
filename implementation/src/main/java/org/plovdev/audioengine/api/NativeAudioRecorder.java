@@ -187,8 +187,8 @@ public class NativeAudioRecorder implements AudioRecorder {
             int bytesRead = audioDevice.read(chunk);
 
             if (bytesRead > 0) {
-                ByteBuffer processedChunk = processChunk(chunk);
-                recordedData.offer(processedChunk);
+                processChunk(chunk);
+                recordedData.offer(chunk);
                 recordedLength.addAndGet(bytesRead);
 
                 eventExecutor.execute(onChunkRecorded);
@@ -203,11 +203,10 @@ public class NativeAudioRecorder implements AudioRecorder {
      * Processes audio chunk through gain effect.
      *
      * @param chunk raw audio chunk
-     * @return processed chunk with gain applied
      */
     @NotNull
-    private ByteBuffer processChunk(ByteBuffer chunk) {
-        return gainEffect.process(chunk);
+    private void processChunk(ByteBuffer chunk) {
+        gainEffect.process(chunk);
     }
 
     /**

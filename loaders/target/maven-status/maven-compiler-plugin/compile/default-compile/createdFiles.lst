@@ -28,6 +28,7 @@ org/plovdev/audioengine/loaders/wav/chunks/TagEntry.class
 org/plovdev/audioengine/loaders/wav/write/writers/DataChunkWriter.class
 org/plovdev/audioengine/loaders/wav/WavTrackDecoder.class
 org/plovdev/audioengine/loaders/raw/RawTrackExporter.class
+org/plovdev/audioengine/loaders/wav/write/WavTrackOutputStream.class
 org/plovdev/audioengine/loaders/wav/read/ParseUtils.class
 org/plovdev/audioengine/loaders/wav/WavTrackLoader$2.class
 org/plovdev/audioengine/loaders/wav/ChunkParsersMap.class

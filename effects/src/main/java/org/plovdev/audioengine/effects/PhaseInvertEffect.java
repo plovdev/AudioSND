@@ -21,22 +21,19 @@ public class PhaseInvertEffect implements AudioEffect {
     }
 
     @Override
-    public ByteBuffer process(ByteBuffer source) {
+    public void process(ByteBuffer source) {
         int frameSize = format.bytesPerSample();
-
-        ByteBuffer result = ByteBuffer.allocateDirect(source.capacity());
-        result.order(format.byteOrder());
         source.rewind();
 
         byte[] chunk = new byte[frameSize];
         for (int i = 0; i < source.limit(); i += frameSize) {
+            int pos = source.position();
             source.get(chunk);
+            source.position(pos);
             for (byte sample : chunk) {
                 byte inverted = (byte) (-sample);
-                result.put(inverted);
+                source.put(inverted);
             }
         }
-
-        return result.flip();
     }
 }

@@ -442,11 +442,10 @@ public class NativeTrackPlayer implements TrackPlayer {
      * </p>
      *
      * @param chunk raw audio chunk to process
-     * @return processed audio chunk with gain applied
      */
     @NotNull
-    private ByteBuffer processChunk(ByteBuffer chunk) {
-        return gainEffect.process(chunk);
+    private void processChunk(ByteBuffer chunk) {
+        gainEffect.process(chunk);
     }
 
     /**

@@ -52,15 +52,17 @@ public class EffectsChain {
         if (effects.isEmpty()) {
             return source;
         }
-
         TrackFormat format = source.getFormat();
-        ByteBuffer processed = source.getTrackData();
+
+        ByteBuffer original = source.getTrackData(); // read only
+        ByteBuffer copy = ByteBuffer.allocateDirect(original.capacity());
+        copy.put(original);
 
         for (AudioEffect effect : effects) {
             effect.setup(format);
-            processed = effect.process(processed);
+            effect.process(copy);
         }
 
-        return new Track(processed, source.getDuration(), format, source.getMetaData());
+        return new Track(copy, source.getDuration(), format, source.getMetaData());
     }
 }

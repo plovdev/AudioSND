@@ -65,10 +65,10 @@ public class ReverbEffect implements AudioEffect {
         combFeedback = new float[numCombs];
 
         for (int i = 0; i < numCombs; i++) {
-            int delay = (int)(COMB_TUNINGS[i % COMB_TUNINGS.length] * sizeMultiplier);
+            int delay = (int) (COMB_TUNINGS[i % COMB_TUNINGS.length] * sizeMultiplier);
             combBuffers[i] = new float[delay * channels];
             combIndices[i] = 0;
-            float g = (float)Math.pow(10, -3.0 * delay / (sampleRate * decayTime));
+            float g = (float) Math.pow(10, -3.0 * delay / (sampleRate * decayTime));
             combFeedback[i] = g * (1.0f - damping * 0.3f);
         }
 
@@ -76,14 +76,14 @@ public class ReverbEffect implements AudioEffect {
         allpassIndices = new int[numAllpasses];
 
         for (int i = 0; i < numAllpasses; i++) {
-            int delay = (int)(ALLPASS_TUNINGS[i % ALLPASS_TUNINGS.length] * sizeMultiplier * 0.5f);
+            int delay = (int) (ALLPASS_TUNINGS[i % ALLPASS_TUNINGS.length] * sizeMultiplier * 0.5f);
             allpassBuffers[i] = new float[delay * channels];
             allpassIndices[i] = 0;
         }
     }
 
     @Override
-    public ByteBuffer process(ByteBuffer source) {
+    public void process(ByteBuffer source) {
         if (format == null) {
             throw new IllegalStateException("Effect not initialized. Call setup() first.");
         }
@@ -94,19 +94,15 @@ public class ReverbEffect implements AudioEffect {
         int bytesPerSample = format.bytesPerSample() / channels;
         int numSamples = source.remaining() / format.bytesPerSample();
 
-        ByteBuffer processed = ByteBuffer.allocateDirect(source.remaining());
-        processed.order(format.byteOrder());
-
         for (int i = 0; i < numSamples; i++) {
             for (int ch = 0; ch < channels; ch++) {
+                int pos = source.position();
                 float input = readSample(source, bytesPerSample);
                 float output = processSample(input, ch);
-                writeSample(processed, output, bytesPerSample);
+                source.position(pos);
+                writeSample(source, output, bytesPerSample);
             }
         }
-
-        processed.flip();
-        return processed;
     }
 
     private float processSample(float input, int channel) {
