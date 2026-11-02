@@ -11,8 +11,6 @@ import org.plovdev.audioengine.format.TrackFormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.foreign.Arena;
-import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.Objects;
@@ -50,7 +48,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @see AudioRecorder
  */
 public class NativeTrackPlayer implements TrackPlayer {
-    private static final int CHUNK_DURATION_MS = 10;
+    private static final int CHUNK_DURATION_MS = 5;
     private static final Logger log = LoggerFactory.getLogger(NativeTrackPlayer.class);
     private final ExecutorService eventExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
@@ -61,11 +59,11 @@ public class NativeTrackPlayer implements TrackPlayer {
     private final AtomicBoolean isPlaying = new AtomicBoolean(false);
     private final AtomicBoolean isInited = new AtomicBoolean(false);
     private final AtomicReference<NativeOutputAudioDevice> audioDeviceReference;
-    private final GainEffect gainEffect = new GainEffect(volume);
+    private final GainEffect gainEffect;
 
     private final AtomicReference<AudioStatus> status = new AtomicReference<>(AudioStatus.UNAVAILABLE);
     private final Track track;
-    private final MemorySegment data;
+    private final ByteBuffer data;
 
     private final int chunkSize;
     private int currentCycle = 0;
@@ -96,16 +94,13 @@ public class NativeTrackPlayer implements TrackPlayer {
         Objects.requireNonNull(info);
 
         this.track = track;
+        this.gainEffect = new GainEffect(track.getFormat(), volume);
         audioDeviceReference = new AtomicReference<>(new NativeOutputAudioDevice(info));
-
-        Arena arena = Arena.ofAuto();
-        MemorySegment segment = arena.allocate(track.getTrackData().remaining());
-        segment.asByteBuffer().put(track.getTrackData());
-        data = segment;
+        data = ByteBuffer.allocateDirect(track.getTrackData().capacity());
+        data.put(track.getTrackData());
 
         init();
         chunkSize = (TrackFormatUtils.calculateFrameSize(track.getFormat()) * CHUNK_DURATION_MS);
-        gainEffect.setup(track.getFormat());
 
         log.debug("Native track player inited success");
     }
@@ -167,7 +162,7 @@ public class NativeTrackPlayer implements TrackPlayer {
         checkIfInited();
 
         long toPosition = position.toMillis() * (chunkSize / CHUNK_DURATION_MS);
-        long limit = data.byteSize();
+        long limit = data.limit();
         if (toPosition >= limit) {
             toPosition = limit;
         }
@@ -219,7 +214,7 @@ public class NativeTrackPlayer implements TrackPlayer {
     @Override
     public synchronized void setVolume(float volume) {
         this.volume = Math.clamp(volume, -10.0f, 10.0f);
-        gainEffect.setGain(volume);
+        gainEffect.setGain(this.volume);
     }
 
     /**
@@ -353,13 +348,14 @@ public class NativeTrackPlayer implements TrackPlayer {
     private void audioLoop() {
         checkIfInited();
         if (totalCycles == 0) return;
-        long limit = data.byteSize();
+        long limit = data.limit();
 
         NativeOutputAudioDevice audioDevice = audioDeviceReference.get();
         while (isPlaying.get()) {
-            long start = position.get();
+            int start = (int) position.get();
+            int rem = (int) (limit - start);
 
-            if (start >= limit) {
+            if (start >= limit || rem <= 0) {
                 currentCycle++;
                 if (totalCycles < 0) {
                     position.set(0);
@@ -373,7 +369,10 @@ public class NativeTrackPlayer implements TrackPlayer {
                 }
             }
 
-            audioDevice.write(data, start, chunkSize);
+            ByteBuffer chunk = data.slice(start, Math.min(chunkSize, rem));
+            processChunk(chunk);
+            audioDevice.write(chunk);
+
             position.set(Math.min(start + chunkSize, limit));
             eventExecutor.execute(onChunkPlayed);
         }

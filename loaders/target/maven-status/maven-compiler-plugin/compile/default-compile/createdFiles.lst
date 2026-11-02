@@ -15,6 +15,7 @@ org/plovdev/audioengine/loaders/wav/WavTrackEncoder.class
 org/plovdev/audioengine/loaders/wav/WavTrackLoader.class
 org/plovdev/audioengine/loaders/raw/RawTrackLoaderManager.class
 org/plovdev/audioengine/loaders/wav/chunks/DataChunk.class
+org/plovdev/audioengine/loaders/wav/WavTrackOutputStream.class
 org/plovdev/audioengine/loaders/flac/FlacTrackEncoder.class
 org/plovdev/audioengine/loaders/wav/write/writers/FormatChunkWriter.class
 org/plovdev/audioengine/loaders/flac/FlacTrackExporter.class
@@ -28,7 +29,6 @@ org/plovdev/audioengine/loaders/wav/chunks/TagEntry.class
 org/plovdev/audioengine/loaders/wav/write/writers/DataChunkWriter.class
 org/plovdev/audioengine/loaders/wav/WavTrackDecoder.class
 org/plovdev/audioengine/loaders/raw/RawTrackExporter.class
-org/plovdev/audioengine/loaders/wav/write/WavTrackOutputStream.class
 org/plovdev/audioengine/loaders/wav/read/ParseUtils.class
 org/plovdev/audioengine/loaders/wav/WavTrackLoader$2.class
 org/plovdev/audioengine/loaders/wav/ChunkParsersMap.class

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.plovdev.audiosnd</groupId>
         <artifactId>AudioSND</artifactId>
-        <version>1.0.0-BETA</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>examples</artifactId>
@@ -15,37 +15,46 @@
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <logback.version>1.5.26</logback.version>
     </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.plovdev.audiosnd</groupId>
             <artifactId>core</artifactId>
-            <version>1.0.0-BETA</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.plovdev.audiosnd</groupId>
             <artifactId>implementation</artifactId>
-            <version>1.0.0-BETA</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.plovdev.audiosnd</groupId>
             <artifactId>loaders</artifactId>
-            <version>1.0.0-BETA</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.plovdev.audiosnd</groupId>
             <artifactId>generator</artifactId>
-            <version>1.0.0-BETA</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.plovdev.audiosnd</groupId>
             <artifactId>effects</artifactId>
-            <version>1.0.0-BETA</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.plovdev.audiosnd</groupId>
             <artifactId>profiler</artifactId>
-            <version>1.0.0-BETA</version>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Logger dependencies !-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
     </dependencies>
 </project>

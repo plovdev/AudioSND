@@ -29,10 +29,6 @@ public class EffectsChain {
     /**
      * Applies the chain of effects to a track.
      * <p>
-     * Each effect is {@link AudioEffect#setup(TrackFormat) setup} with the track's format
-     * before processing. Setup is called on every apply — implementations should be idempotent.
-     * </p>
-     * <p>
      * The track's audio data is read-only. Effects that need mutable buffers
      * must copy the data internally.
      * </p>
@@ -52,15 +48,19 @@ public class EffectsChain {
         if (effects.isEmpty()) {
             return source;
         }
+
         TrackFormat format = source.getFormat();
 
-        ByteBuffer original = source.getTrackData(); // read only
+        ByteBuffer original = source.getTrackData();
+        original.rewind();
         ByteBuffer copy = ByteBuffer.allocateDirect(original.capacity());
+        copy.order(format.byteOrder());
         copy.put(original);
+        copy.rewind();
 
         for (AudioEffect effect : effects) {
-            effect.setup(format);
             effect.process(copy);
+            copy.rewind();
         }
 
         return new Track(copy, source.getDuration(), format, source.getMetaData());

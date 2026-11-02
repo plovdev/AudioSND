@@ -34,7 +34,7 @@ public class WavTrackExporter implements TrackExporter {
 
             int listSize = 0;
             if (track.getMetaData() != null && !track.getMetaData().isEmpty()) {
-                chunkWriter.writeChunk(WavChunkId.ID3_HEAD, track);
+                chunkWriter.writeChunk(WavChunkId.ID3_HEAD, track.getMetaData());
                 listSize = buffer.size() - fmtSize;
             }
 
@@ -51,7 +51,6 @@ public class WavTrackExporter implements TrackExporter {
             outputStream.write(WAVE.getBytes());
 
             buffer.writeTo(outputStream);
-
             outputStream.close();
         } catch (Exception e) {
             throw new TrackExportException(e.getMessage());

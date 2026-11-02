@@ -6,7 +6,8 @@
 
     <groupId>org.plovdev.audiosnd</groupId>
     <artifactId>AudioSND</artifactId>
-    <version>1.0.0-BETA</version>
+    <version>${revision}</version>
+
     <packaging>pom</packaging>
     <name>AudioSND</name>
     <modules>
@@ -21,14 +22,13 @@
     </modules>
 
     <properties>
+        <revision>1.0.5-BETA</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
         <slf4j.version>2.0.17</slf4j.version>
         <junit.version>6.0.2</junit.version>
-        <logback.version>1.5.26</logback.version>
     </properties>
-
 
     <dependencies>
         <!-- Logger dependencies !-->
@@ -36,11 +36,6 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>${logback.version}</version>
         </dependency>
 
         <!-- JUnit5 dependencies !-->
@@ -99,6 +94,25 @@
                         <arg>-Xlint:deprecation</arg>
                     </compilerArgs>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

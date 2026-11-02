@@ -5,15 +5,10 @@ import org.plovdev.audioengine.format.TrackFormat;
 import java.nio.ByteBuffer;
 
 public class ReverseEffect implements AudioEffect {
-    private TrackFormat format;
+    private final TrackFormat format;
+    private volatile boolean isMuted = false;
 
-    /**
-     * Инициализирует эффект(дает базовую настройку)
-     *
-     * @param format формат трека
-     */
-    @Override
-    public void setup(TrackFormat format) {
+    public ReverseEffect(TrackFormat format) {
         this.format = format;
     }
 
@@ -24,15 +19,39 @@ public class ReverseEffect implements AudioEffect {
      */
     @Override
     public void process(ByteBuffer source) {
-        int frameSize = format.bytesPerSample();
-        int size = source.limit();
-        byte[] chunk = new byte[frameSize];
+        if (!isMuted()) {
+            source.order(format.byteOrder());
+            source.rewind();
+            int frameSize = format.bytesPerSample();
+            int size = source.limit();
+            byte[] buffer = new byte[size];
+            source.get(buffer).rewind();
 
-        for (int i = size - frameSize; i >= 0; i -= frameSize) {
-            source.position(i);
-            source.get(chunk);
-            source.position(i);
-            source.put(chunk);
+            for (int i = size - frameSize; i >= 0; i -= frameSize) {
+                source.put(buffer, i, frameSize);
+            }
+
+            source.rewind();
         }
+    }
+
+    @Override
+    public void reset() {
+        isMuted = false;
+    }
+
+    @Override
+    public void setMute(boolean mute) {
+        isMuted = mute;
+    }
+
+    @Override
+    public boolean isMuted() {
+        return isMuted;
+    }
+
+    @Override
+    public String getName() {
+        return "Reverse";
     }
 }

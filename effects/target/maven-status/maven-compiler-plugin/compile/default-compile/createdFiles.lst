@@ -1,8 +1,9 @@
-org/plovdev/audioengine/effects/OverdriveEffect$Type.class
-org/plovdev/audioengine/effects/OverdriveEffect$ToneFilter.class
 org/plovdev/audioengine/effects/OverdriveEffect.class
-org/plovdev/audioengine/effects/ReverbEffect$Type.class
+org/plovdev/audioengine/effects/OverdriveEffect$OverdriveType.class
+org/plovdev/audioengine/effects/ToneFilter.class
 org/plovdev/audioengine/effects/PhaseInvertEffect.class
+org/plovdev/audioengine/effects/ReverbEffect$RoomType.class
 org/plovdev/audioengine/effects/ReverbEffect.class
 org/plovdev/audioengine/effects/parsers/AudioEffectParser.class
+org/plovdev/audioengine/effects/NoiseGateEffect.class
 org/plovdev/audioengine/effects/ReverseEffect.class

@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.plovdev.audiosnd</groupId>
         <artifactId>AudioSND</artifactId>
-        <version>1.0.0-BETA</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>core</artifactId>
@@ -16,5 +16,4 @@
         <maven.compiler.target>25</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
 </project>

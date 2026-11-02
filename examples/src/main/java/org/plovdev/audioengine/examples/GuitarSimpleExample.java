@@ -2,23 +2,18 @@ package org.plovdev.audioengine.examples;
 
 import org.plovdev.audioengine.AudioEngine;
 import org.plovdev.audioengine.NativeAudioEngine;
-import org.plovdev.audioengine.api.Track;
 import org.plovdev.audioengine.devices.*;
+import org.plovdev.audioengine.effects.AudioEffect;
+import org.plovdev.audioengine.effects.NoiseGateEffect;
 import org.plovdev.audioengine.effects.OverdriveEffect;
 import org.plovdev.audioengine.effects.ReverbEffect;
 import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.format.TrackFormatUtils;
 import org.plovdev.audioengine.format.factories.WavTrackFormatFactory;
-import org.plovdev.audioengine.loaders.io.TrackOutputStream;
-import org.plovdev.audioengine.loaders.wav.write.WavTrackOutputStream;
-import org.plovdev.audioengine.metadata.TrackMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.nio.ByteBuffer;
-import java.time.Duration;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,11 +33,10 @@ public class GuitarSimpleExample {
             AudioDeviceInfo inputInfo = manager.getDefaultInputAudioDevice();
             AudioDeviceInfo outputInfo = manager.getOutputDeviceById("48");
 
-            OverdriveEffect effect = new OverdriveEffect();
-            ReverbEffect reverb = new ReverbEffect();
+            OverdriveEffect effect = new OverdriveEffect(format, OverdriveEffect.OverdriveType.SOFT_CLIPPING, 0.6f, 0.6f, 0.6f, 0.6f, 0.03f);
+            ReverbEffect reverb = new ReverbEffect(format);
 
-            effect.setup(format);
-            reverb.setup(format);
+            AudioEffect e = new NoiseGateEffect(format, 1);
 
             try (InputAudioDevice input = new NativeInputAudioDevice(inputInfo);
                  OutputAudioDevice output = new NativeOutputAudioDevice(outputInfo)) {
@@ -56,7 +50,7 @@ public class GuitarSimpleExample {
                 log.info("Start cycle: isRunning: {}", isRunning.get());
                 while (isRunning.get()) {
                     input.read(buffer);
-                    effect.process(buffer);
+                    e.process(buffer);
                     output.write(buffer);
                     buffer.position(0);
                     if (needWrite) {
@@ -67,12 +61,6 @@ public class GuitarSimpleExample {
 
                 ByteBuffer writed = ByteBuffer.allocateDirect(savedTrack.size());
                 writed.put(savedTrack.toByteArray());
-
-                if (needWrite) {
-                    try (TrackOutputStream stream = new WavTrackOutputStream(new Track(writed, Duration.ofMillis(TrackFormatUtils.calculateDurationMs(format, savedTrack.size())), format, TrackMetadata.DEFAULT_METADATA), new FileOutputStream(fileName))) {
-                        stream.write(writed);
-                    }
-                }
             }
         } catch (Exception e) {
             log.error("Audio engine error: ", e);

@@ -1,3 +1,9 @@
 org/plovdev/audioengine/NativeAudioEngine.class
 org/plovdev/audioengine/api/NativeAudioRecorder.class
+org/plovdev/audioengine/devices/AudioDeviceManager.class
+org/plovdev/audioengine/api/NativeTrackPlayer.class
+org/plovdev/audioengine/mixer/NativeTrackMixer.class
 org/plovdev/audioengine/devices/NativeInputAudioDevice.class
+org/plovdev/audioengine/devices/AudioDeviceListener.class
+org/plovdev/audioengine/utils/NativeLibraryUnpacker.class
+org/plovdev/audioengine/devices/NativeOutputAudioDevice.class

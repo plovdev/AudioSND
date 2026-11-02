@@ -1,6 +1,5 @@
 package org.plovdev.audioengine.loaders.wav.write.writers;
 
-import org.plovdev.audioengine.api.Track;
 import org.plovdev.audioengine.metadata.MetaKey;
 import org.plovdev.audioengine.metadata.TrackMetadata;
 import org.plovdev.audioengine.metadata.image.TrackImage;
@@ -16,16 +15,16 @@ import java.util.Date;
 
 import static org.plovdev.audioengine.loaders.ExportUtils.intToLittleEndian;
 
-public class ID3ChunkWriter implements WavChunkWriter<Track> {
+public class ID3ChunkWriter implements WavChunkWriter<TrackMetadata> {
     private static final Logger log = LoggerFactory.getLogger(ID3ChunkWriter.class);
 
     @Override
     public Class<?> getType() {
-        return Track.class;
+        return TrackMetadata.class;
     }
 
     @Override
-    public void write(OutputStream stream, Track track) {
+    public void write(OutputStream stream, TrackMetadata metadata) {
         try {
             ByteArrayOutputStream id3Data = new ByteArrayOutputStream();
 
@@ -38,8 +37,6 @@ public class ID3ChunkWriter implements WavChunkWriter<Track> {
             id3Data.write(new byte[4]);
 
             int dataSize = 0;
-
-            TrackMetadata metadata = track.getMetaData();
 
             dataSize += writeId3TextFrame(id3Data, MetaKey.TITLE, metadata.getTitle().orElse(null));
             dataSize += writeId3TextFrame(id3Data, MetaKey.ARTIST, metadata.getArtist().orElse(null));
@@ -97,6 +94,7 @@ public class ID3ChunkWriter implements WavChunkWriter<Track> {
         }
         return writeId3TextFrame(bos, frameId, String.valueOf(value));
     }
+
     private int writeId3TextFrame(ByteArrayOutputStream bos, MetaKey frameId, Float value) {
         if (value == null) {
             return 0;

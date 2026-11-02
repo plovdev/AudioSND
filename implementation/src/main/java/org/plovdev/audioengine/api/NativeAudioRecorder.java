@@ -46,7 +46,7 @@ public class NativeAudioRecorder implements AudioRecorder {
     private final AtomicInteger recordedLength = new AtomicInteger(0);
     private final Queue<ByteBuffer> recordedData = new ConcurrentLinkedQueue<>();
     private final AtomicReference<AudioStatus> status = new AtomicReference<>(AudioStatus.UNAVAILABLE);
-    private final GainEffect gainEffect = new GainEffect(gain);
+    private final GainEffect gainEffect;
 
     private final NativeInputAudioDevice audioDevice;
     private final TrackFormat trackFormat;
@@ -65,12 +65,11 @@ public class NativeAudioRecorder implements AudioRecorder {
     public NativeAudioRecorder(TrackFormat format, AudioDeviceInfo info) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(info);
-
         this.trackFormat = format;
+        this.gainEffect = new GainEffect(format, gain);
         audioDevice = new NativeInputAudioDevice(info);
 
         init();
-        gainEffect.setup(format);
         log.debug("Native audio recorder initialized successfully");
     }
 

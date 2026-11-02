@@ -7,3 +7,4 @@ org/plovdev/audioengine/examples/AudioDeviceListenerExample$1.class
 org/plovdev/audioengine/examples/MixerExample.class
 org/plovdev/audioengine/examples/GuitarSimpleExample.class
 org/plovdev/audioengine/examples/AudioEngineProfilerExample.class
+org/plovdev/audioengine/examples/TrackOutputStreamExample.class
