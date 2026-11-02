@@ -46,24 +46,52 @@ static AudioStreamBasicDescription javaToASBD(JNIEnv* env, jobject fmt) {
     AudioStreamBasicDescription asbd{};
     jclass cls = env->GetObjectClass(fmt);
 
-    int sr = env->GetIntField(fmt, env->GetFieldID(cls,"sampleRate","I"));
-    int ch = env->GetIntField(fmt, env->GetFieldID(cls,"channels","I"));
-    int bits = env->GetIntField(fmt, env->GetFieldID(cls,"bitDepth","I"));
-    bool sign = env->GetBooleanField(fmt, env->GetFieldID(cls,"signed","Z"));
+    auto getInt = [&](const char* name) {
+        return env->GetIntField(fmt, env->GetFieldID(cls, name, "I"));
+    };
+
+    int sr = getInt("sampleRate");
+    int ch = getInt("channels");
+    int bits = getInt("bitDepth");
+
+    jfieldID codecField = env->GetFieldID(
+        cls,
+        "audioCodec",
+        "Lorg/plovdev/audioengine/format/TrackFormat$AudioCodec;"
+    );
+
+    jobject codec = env->GetObjectField(fmt, codecField);
+
+    jclass enumCls = env->GetObjectClass(codec);
+    jmethodID nameMethod = env->GetMethodID(
+        enumCls, "name", "()Ljava/lang/String;"
+    );
+
+    auto codecName = (jstring) env->CallObjectMethod(codec, nameMethod);
+    const char* codecStr = env->GetStringUTFChars(codecName, nullptr);
+
+    bool isFloat = strcmp(codecStr, "FLOAT32") == 0 || strcmp(codecStr, "FLOAT64") == 0;
+
+    env->ReleaseStringUTFChars(codecName, codecStr);
 
     asbd.mSampleRate = sr;
     asbd.mFormatID = kAudioFormatLinearPCM;
-    asbd.mFormatFlags = kAudioFormatFlagsNativeEndian;
-
-    if (sign)
-        asbd.mFormatFlags |= kAudioFormatFlagIsSignedInteger;
-
     asbd.mChannelsPerFrame = ch;
     asbd.mBitsPerChannel = bits;
-
-    asbd.mBytesPerFrame = (bits/8)*ch;
-    asbd.mBytesPerPacket = asbd.mBytesPerFrame;
     asbd.mFramesPerPacket = 1;
+
+    asbd.mFormatFlags =
+        kAudioFormatFlagIsPacked |
+        kAudioFormatFlagsNativeEndian;
+
+    if (isFloat) {
+        asbd.mFormatFlags |= kAudioFormatFlagIsFloat;
+    } else {
+        asbd.mFormatFlags |= kAudioFormatFlagIsSignedInteger;
+    }
+
+    asbd.mBytesPerFrame = (bits / 8) * ch;
+    asbd.mBytesPerPacket = asbd.mBytesPerFrame;
 
     return asbd;
 }
