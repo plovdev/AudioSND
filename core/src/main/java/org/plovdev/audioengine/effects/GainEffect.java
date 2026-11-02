@@ -1,21 +1,21 @@
 package org.plovdev.audioengine.effects;
 
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 
 import java.nio.ByteBuffer;
 
 public class GainEffect implements AudioEffect {
-    private final TrackFormat format;
+    private final AudioFormat format;
 
     private volatile boolean isMuted = false;
     private float gain = 1;
 
-    public GainEffect(TrackFormat format, float gain) {
+    public GainEffect(AudioFormat format, float gain) {
         this.format = format;
         setGain(gain);
     }
 
-    public GainEffect(TrackFormat format) {
+    public GainEffect(AudioFormat format) {
         this(format, 1);
     }
 
@@ -30,23 +30,18 @@ public class GainEffect implements AudioEffect {
     @Override
     public synchronized void process(ByteBuffer input) {
         if (format == null) {
-            throw new IllegalStateException("GainEffect не инициализирован");
+            throw new IllegalStateException("GainEffect not initializated");
         }
 
         if (!isMuted()) {
-            input.order(format.byteOrder());
             input.rewind();
-            int numSamples = input.remaining() / format.bytesPerSample();
-            int channels = format.channels();
 
-            for (int i = 0; i < numSamples; i++) {
-                for (int ch = 0; ch < channels; ch++) {
-                    int pos = input.position();
-                    float sample = EffectUtils.readSample(format, input);
-                    float amplified = sample * gain;
-                    input.position(pos);
-                    EffectUtils.writeSample(format, input, amplified);
-                }
+            while (input.remaining() >= 4) {
+                int pos = input.position();
+                float sample = input.getFloat();
+                float amplified = sample * gain;
+                input.position(pos);
+                input.putFloat(amplified);
             }
         }
     }

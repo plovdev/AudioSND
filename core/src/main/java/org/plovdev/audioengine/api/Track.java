@@ -1,7 +1,7 @@
 package org.plovdev.audioengine.api;
 
 import org.plovdev.audioengine.exceptions.AudioEngineException;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 import org.plovdev.audioengine.metadata.TrackMetadata;
 
 import java.nio.ByteBuffer;
@@ -19,7 +19,7 @@ public class Track {
     // Track information
     private final ByteBuffer trackData;
     private final Duration duration;
-    private final TrackFormat format;
+    private final AudioFormat format;
     private TrackMetadata metaData;
 
     /**
@@ -29,10 +29,10 @@ public class Track {
      * @param duration  audio duration
      * @param format    audio track format
      * @param metaData  metadata, loaded from file, or created by hands
-     * @throws NullPointerException     if trackData or format is null
+     * @throws NullPointerException if trackData or format is null
      * @throws AudioEngineException if trackData is not a direct buffer
      */
-    public Track(ByteBuffer trackData, Duration duration, TrackFormat format, TrackMetadata metaData) {
+    public Track(ByteBuffer trackData, Duration duration, AudioFormat format, TrackMetadata metaData) {
         Objects.requireNonNull(trackData, "trackData must not be null");
         Objects.requireNonNull(duration, "duration must not be null");
         Objects.requireNonNull(format, "format must not be null");
@@ -59,7 +59,7 @@ public class Track {
         return duration;
     }
 
-    public TrackFormat getFormat() {
+    public AudioFormat getFormat() {
         return format;
     }
 

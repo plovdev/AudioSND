@@ -14,8 +14,6 @@ import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.util.List;
 
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.*;
-
 public class WavTrackDecoder implements TrackDecoder {
     private static final List<TrackFormat.AudioCodec> allowFromDecodeCodecs = List.of(ULAW, ALAW, IMA_ADPCM, MIC_ADPCM, GSM_6);
     private static final List<TrackFormat.AudioCodec> allowToDecodeCodecs = List.of(PCM8, PCM16, PCM32, FLOAT32, FLOAT64);

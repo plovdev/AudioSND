@@ -2,6 +2,7 @@ package org.plovdev.audioengine.api;
 
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.exceptions.devices.OpenAudioDeviceException;
+import org.plovdev.audioengine.format.AudioFormat;
 import org.plovdev.audioengine.format.TrackFormat;
 
 /**
@@ -40,7 +41,7 @@ public interface AudioController extends AutoCloseable {
      * Returns current track format.
      * @return current format.
      */
-    TrackFormat getCurrentFormat();
+    AudioFormat getCurrentFormat();
 
     /**
      * Releases all resources.

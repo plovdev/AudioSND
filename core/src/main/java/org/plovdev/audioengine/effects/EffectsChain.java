@@ -1,9 +1,10 @@
 package org.plovdev.audioengine.effects;
 
 import org.plovdev.audioengine.api.Track;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,12 +50,12 @@ public class EffectsChain {
             return source;
         }
 
-        TrackFormat format = source.getFormat();
+        AudioFormat format = source.getFormat();
 
         ByteBuffer original = source.getTrackData();
         original.rewind();
         ByteBuffer copy = ByteBuffer.allocateDirect(original.capacity());
-        copy.order(format.byteOrder());
+        copy.order(ByteOrder.LITTLE_ENDIAN);
         copy.put(original);
         copy.rewind();
 

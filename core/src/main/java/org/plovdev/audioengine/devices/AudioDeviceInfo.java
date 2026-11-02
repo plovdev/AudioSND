@@ -32,7 +32,7 @@ public record AudioDeviceInfo(@NotNull String id, String name, String vendor, @N
         /** Output device (speakers, headphones) */
         OUTPUT,
 
-        /** Full-duplex device (input and output simultaneously) */
+        /** Full-duplex device (input and output) */
         DUPLEX
     }
 

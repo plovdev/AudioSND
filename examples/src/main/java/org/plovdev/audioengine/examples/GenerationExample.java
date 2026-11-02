@@ -12,7 +12,7 @@ import org.plovdev.audioengine.generator.strategies.wave.*;
 import org.plovdev.audioengine.api.TrackPlayer;
 import org.plovdev.audioengine.api.Track;
 import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.format.factories.WavTrackFormatFactory;
+import org.plovdev.audioengine.loaders.format.factories.WavTrackFormatFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -13,7 +13,6 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.*;
 import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.ALAW;
 import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.FLOAT32;
 import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.FLOAT64;

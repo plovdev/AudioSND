@@ -2,14 +2,14 @@ package org.plovdev.audioengine.devices;
 
 import org.jetbrains.annotations.NotNull;
 import org.plovdev.audioengine.exceptions.devices.OpenAudioDeviceException;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 
 /**
  * Base interface for all audio devices (input or output).
  * Most abstractly device description.
  * <p>
  * Devices follow this lifecycle:
- * 1. {@link #open(TrackFormat)} - allocate resources
+ * 1. {@link #open(AudioFormat)} - allocate resources
  * 2. {@link #close()} - release resources
  * </p>
  *
@@ -24,7 +24,7 @@ public interface AudioDevice extends AutoCloseable {
      * @param format working format
      * @throws OpenAudioDeviceException when opening failed.
      */
-    void open(@NotNull TrackFormat format) throws OpenAudioDeviceException;
+    void open(@NotNull AudioFormat format) throws OpenAudioDeviceException;
 
     /**
      * Checks if this format is supported by the audio device.
@@ -32,8 +32,8 @@ public interface AudioDevice extends AutoCloseable {
      * @param format checking format.
      * @return is supported
      */
-    default boolean isSupportedFormat(@NotNull TrackFormat format) {
-        return getDeviceInfo().supportedFormats().contains(format);
+    default boolean isSupportedFormat(@NotNull AudioFormat format) {
+        return getDeviceInfo().supportedFormats().stream().anyMatch(tf -> format.channels() == tf.channels() && format.sampleRate() == tf.sampleRate());
     }
 
     /**
@@ -52,6 +52,7 @@ public interface AudioDevice extends AutoCloseable {
 
     /**
      * Checks if the audio device is open.
+     *
      * @return is audio device open.
      */
     boolean isOpen();

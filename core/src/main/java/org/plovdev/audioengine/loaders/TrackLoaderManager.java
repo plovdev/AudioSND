@@ -20,17 +20,20 @@ import java.net.URI;
  * </ul>
  * </p>
  *
+ * @author Anton
+ * @version 1.0
  * @see Track
  * @see TrackFormat
  * @see PathLocator
- * @author Anton
- * @version 1.0
  * @since 1.0
  */
 public interface TrackLoaderManager {
     @NotNull TrackLoader getTrackLoader();
+
     @NotNull TrackExporter getTrackExporter();
+
     @NotNull TrackEncoder getTrackEncoder();
+
     @NotNull TrackDecoder getTrackDecoder();
 
     /**

@@ -1,24 +1,26 @@
 package org.plovdev.audioengine.format;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.nio.ByteOrder;
 
 /**
- * Track format description.
+ * Track format description for clients.
  *
- * @param channels channels count in audio.
- * @param bitDepth audio format width.
+ * @param channels   channels count in audio.
+ * @param bitDepth   audio format width.
  * @param sampleRate audio sample rate.
- * @param signed is signed audio.
- * @param byteOrder audio byte order.
+ * @param signed     is signed audio.
+ * @param byteOrder  audio byte order.
  * @param audioCodec audio data codec.
- *
  * @author Anton
  * @version 1.0
  */
 
-public record TrackFormat(int channels, int bitDepth, int sampleRate, boolean signed, @NotNull ByteOrder byteOrder, @NotNull AudioCodec audioCodec) {
+public record TrackFormat(int channels, int bitDepth, int sampleRate, boolean signed, @NotNull ByteOrder byteOrder,
+                          @NotNull AudioCodec audioCodec) {
     /**
      * Audio codec before converted to pcm
      */
@@ -66,10 +68,21 @@ public record TrackFormat(int channels, int bitDepth, int sampleRate, boolean si
 
     /**
      * Calculate bytes per sample for uncompressed PCM audio.
+     *
      * @return audio bytes per sample.
      */
     public int bytesPerSample() {
         return (bitDepth / 8) * channels;
+    }
+
+    @Contract(" -> new")
+    public @NonNull AudioFormat toAudioFormat() {
+        return toAudioFormat(this);
+    }
+
+    @Contract("_ -> new")
+    public static @NonNull AudioFormat toAudioFormat(@NonNull TrackFormat format) {
+        return new AudioFormat(format.channels, format.sampleRate);
     }
 
     @Override

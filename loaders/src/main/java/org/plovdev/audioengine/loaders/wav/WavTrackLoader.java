@@ -3,7 +3,7 @@ package org.plovdev.audioengine.loaders.wav;
 import org.plovdev.audioengine.api.Track;
 import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
 import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.format.TrackFormatUtils;
+import org.plovdev.audioengine.loaders.format.TrackFormatUtils;
 import org.plovdev.audioengine.loaders.LoadListener;
 import org.plovdev.audioengine.loaders.LoadListenerAdapter;
 import org.plovdev.audioengine.loaders.PathLocator;

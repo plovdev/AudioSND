@@ -2,6 +2,7 @@ package org.plovdev.audioengine.loaders;
 
 import org.plovdev.audioengine.api.Track;
 import org.jetbrains.annotations.NotNull;
+import org.plovdev.audioengine.format.TrackFormat;
 
 import java.io.OutputStream;
 
@@ -32,5 +33,5 @@ public interface TrackExporter {
      *         if export operation fails
      * @throws NullPointerException if any argument is null
      */
-    void save(@NotNull Track track, @NotNull OutputStream outputStream);
+    void save(@NotNull Track track, TrackFormat toFormat, @NotNull OutputStream outputStream);
 }

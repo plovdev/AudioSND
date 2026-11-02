@@ -2,7 +2,7 @@ package org.plovdev.audioengine.examples;
 
 import org.plovdev.audioengine.AudioEngine;
 import org.plovdev.audioengine.NativeAudioEngine;
-import org.plovdev.audioengine.format.factories.WavTrackFormatFactory;
+import org.plovdev.audioengine.loaders.format.factories.WavTrackFormatFactory;
 import org.plovdev.audioengine.generator.TrackGenerationFactory;
 import org.plovdev.audioengine.generator.note.Note;
 import org.plovdev.audioengine.loaders.io.TrackOutputStream;

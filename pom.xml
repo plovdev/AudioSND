@@ -55,7 +55,8 @@
         <maven.compiler.target>25</maven.compiler.target>
 
         <jb-annos.version>26.0.2</jb-annos.version>
-        <jb-annos.scope>compile</jb-annos.scope>
+        <jspecify.version>1.0.0</jspecify.version>
+        <annotations.scope>compile</annotations.scope>
         <slf4j.version>2.0.17</slf4j.version>
         <junit.version>6.0.3</junit.version>
         <junit.scope>test</junit.scope>
@@ -67,7 +68,13 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>${jb-annos.version}</version>
-            <scope>${jb-annos.scope}</scope>
+            <scope>${annotations.scope}</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
+            <scope>${annotations.scope}</scope>
         </dependency>
 
         <!-- Logger dependencies !-->
