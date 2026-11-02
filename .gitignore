@@ -1,59 +1,16 @@
-### IntelliJ IDEA ###
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
+.idea
+.mvn
+testdata
+target
+build
+out
+**/target
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-core/target/**
+**/.flattened-pom.xml
 
 *.wav
 *.jpg
 *.png
-
-testdata/recorded.wav
-
-audio-snd.dylib
-audio-snd.dll
-audio-snd.so
-
-**/build/
-**/build/**
-
-/testdata/
-/testdata/44100/
-/testdata/48000/
-/testdata/96000/
-
-
-.idea/**
-out
-ae_code.txt
-code.txt
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-**/target/
-**/target/**
-
-
-### VS Code ###
-.vscode/
 
 ### Mac OS ###
 .DS_Store

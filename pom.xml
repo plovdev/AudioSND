@@ -6,10 +6,37 @@
 
     <groupId>org.plovdev.audiosnd</groupId>
     <artifactId>AudioSND</artifactId>
-    <version>${revision}</version>
-
-    <packaging>pom</packaging>
     <name>AudioSND</name>
+    <version>${revision}</version>
+    <description>AudioSND is a powerful low-latency audio engine for Java applications, implemented using JNI (Java
+        Native Interface) for interaction with native C++ code. The project was created with the purpose of providing
+        developers with a convenient tool for working with audio in high-performance applications such as games, media
+        players, and music application
+    </description>
+    <url>https://github.com/plovdev/AudioSND</url>
+    <packaging>pom</packaging>
+
+    <licenses>
+        <license>
+            <name>The Unlicense</name>
+            <url>https://unlicense.org</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Anton</name>
+            <email>ap67253100@gmail.com</email>
+            <organization>PlovDev</organization>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/plovdev/AudioSND.git</connection>
+        <developerConnection>scm:git:git@github.com:plovdev/AudioSND.git</developerConnection>
+        <url>https://github.com/plovdev/AudioSND</url>
+    </scm>
+
     <modules>
         <module>core</module>
         <module>implementation</module>
@@ -22,15 +49,27 @@
     </modules>
 
     <properties>
-        <revision>1.0.5-BETA</revision>
+        <revision>1.0.0-BETA-2</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>25</maven.compiler.source>
         <maven.compiler.target>25</maven.compiler.target>
+
+        <jb-annos.version>26.0.2</jb-annos.version>
+        <jb-annos.scope>compile</jb-annos.scope>
         <slf4j.version>2.0.17</slf4j.version>
-        <junit.version>6.0.2</junit.version>
+        <junit.version>6.0.3</junit.version>
+        <junit.scope>test</junit.scope>
     </properties>
 
     <dependencies>
+        <!-- JB Annos dependencies !-->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${jb-annos.version}</version>
+            <scope>${jb-annos.scope}</scope>
+        </dependency>
+
         <!-- Logger dependencies !-->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -41,50 +80,14 @@
         <!-- JUnit5 dependencies !-->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
+            <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>17.0.0</version>
-            <scope>compile</scope>
+            <scope>${junit.scope}</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.6.0</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                        </manifest>
-                    </archive>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -103,6 +106,7 @@
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    <flattenedPomFilename>target/.flattened-pom.xml</flattenedPomFilename>
                 </configuration>
                 <executions>
                     <execution>
