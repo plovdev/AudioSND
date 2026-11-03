@@ -1,50 +1,26 @@
 package org.plovdev.audioengine.effects;
 
-import org.jetbrains.annotations.NotNull;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 import org.plovdev.audioengine.math.AudioMath;
 
-import java.nio.ByteBuffer;
+import java.util.Objects;
 
-public class ToneFilter implements AudioEffect {
-    private final TrackFormat format;
-    private volatile boolean isMuted;
+public class ToneFilter extends AudioEffect {
+    private static final String EFFECT_NAME = "Tone";
+    private final AudioFormat format;
     private float cutoff;
     private float b0, b1, b2, a1, a2;
     private float x1, x2, y1, y2;
     private boolean needsUpdate = true;
     private float tone;
 
-    public ToneFilter(TrackFormat format, float tone) {
-        this.format = format;
+    public ToneFilter(AudioFormat format, float tone) {
+        this.format = Objects.requireNonNull(format);
         setTone(tone);
         reset();
     }
 
     @Override
-    public void process(@NotNull ByteBuffer source) {
-        if (format == null) {
-            throw new IllegalStateException("ToneFilter не инициализирован");
-        }
-
-        if (!isMuted()) {
-            source.order(format.byteOrder());
-            source.rewind();
-            int numSamples = source.remaining() / format.bytesPerSample();
-            int channels = format.channels();
-
-            for (int i = 0; i < numSamples; i++) {
-                for (int ch = 0; ch < channels; ch++) {
-                    int pos = source.position();
-                    float sample = EffectUtils.readSample(format, source);
-                    float output = processSample(sample);
-                    source.position(pos);
-                    EffectUtils.writeSample(format, source, output);
-                }
-            }
-        }
-    }
-
     public float processSample(float sample) {
         if (needsUpdate) updateCoefficients();
         float output = b0 * sample + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
@@ -81,22 +57,13 @@ public class ToneFilter implements AudioEffect {
 
     @Override
     public synchronized void reset() {
-        isMuted = false;
-    }
-
-    @Override
-    public synchronized void setMute(boolean mute) {
-        isMuted = mute;
-    }
-
-    @Override
-    public boolean isMuted() {
-        return isMuted;
+        isMuted.set(false);
+        tone = 1;
     }
 
     @Override
     public String getName() {
-        return "Tone";
+        return EFFECT_NAME;
     }
 
     public void setTone(float tone) {

@@ -2,9 +2,10 @@ package org.plovdev.audioengine.examples;
 
 import org.plovdev.audioengine.AudioEngine;
 import org.plovdev.audioengine.NativeAudioEngine;
-import org.plovdev.audioengine.loaders.format.factories.WavTrackFormatFactory;
+import org.plovdev.audioengine.format.AudioFormatFactory;
 import org.plovdev.audioengine.generator.TrackGenerationFactory;
 import org.plovdev.audioengine.generator.note.Note;
+import org.plovdev.audioengine.loaders.format.factories.WavTrackFormatFactory;
 import org.plovdev.audioengine.loaders.io.TrackOutputStream;
 import org.plovdev.audioengine.loaders.wav.WavTrackOutputStream;
 import org.slf4j.Logger;
@@ -20,7 +21,7 @@ public class TrackOutputStreamExample {
         try (AudioEngine engine = new NativeAudioEngine();
              TrackOutputStream stream = new WavTrackOutputStream(WavTrackFormatFactory.wav16bitStereo44kHz(), new FileOutputStream("testwrited.wav"))) {
             stream.writeHead();
-            stream.write(TrackGenerationFactory.generateSineWave(Duration.ofSeconds(5), WavTrackFormatFactory.wav16bitStereo44kHz(), Note.A4).getTrackData());
+            stream.write(TrackGenerationFactory.generateSineWave(Duration.ofSeconds(5), AudioFormatFactory.stereo48000(), Note.A4).getTrackData());
         } catch (Exception e) {
             log.error("Error: ", e);
         }

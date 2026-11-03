@@ -1,14 +1,12 @@
 package org.plovdev.audioengine.examples;
 
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.AudioEngine;
 import org.plovdev.audioengine.NativeAudioEngine;
 import org.plovdev.audioengine.devices.*;
-import org.plovdev.audioengine.effects.AudioEffect;
-import org.plovdev.audioengine.effects.NoiseGateEffect;
 import org.plovdev.audioengine.effects.OverdriveEffect;
-import org.plovdev.audioengine.effects.ReverbEffect;
-import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.loaders.format.factories.WavTrackFormatFactory;
+import org.plovdev.audioengine.format.AudioFormat;
+import org.plovdev.audioengine.format.AudioFormatFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,12 +19,12 @@ public class GuitarSimpleExample {
     private static final Logger log = LoggerFactory.getLogger(GuitarSimpleExample.class);
     private static final AtomicBoolean isRunning = new AtomicBoolean(true);
 
-    static void main(String[] args) {
+    static void main(String @NonNull [] args) {
         boolean needWrite = Boolean.parseBoolean(args[0]);
         String fileName = args[1];
 
         runStopThread();
-        TrackFormat format = WavTrackFormatFactory.wav16bitStereo44kHz();
+        AudioFormat format = AudioFormatFactory.stereo48000();
 
         try (AudioEngine engine = new NativeAudioEngine()) {
             AudioDeviceManager manager = AudioDeviceManager.getInstance();
@@ -34,9 +32,6 @@ public class GuitarSimpleExample {
             AudioDeviceInfo outputInfo = manager.getOutputDeviceById("48");
 
             OverdriveEffect effect = new OverdriveEffect(format, OverdriveEffect.OverdriveType.SOFT_CLIPPING, 0.6f, 0.6f, 0.6f, 0.6f, 0.03f);
-            ReverbEffect reverb = new ReverbEffect(format);
-
-            AudioEffect e = new NoiseGateEffect(format, 1);
 
             try (InputAudioDevice input = new NativeInputAudioDevice(inputInfo);
                  OutputAudioDevice output = new NativeOutputAudioDevice(outputInfo)) {
@@ -50,7 +45,7 @@ public class GuitarSimpleExample {
                 log.info("Start cycle: isRunning: {}", isRunning.get());
                 while (isRunning.get()) {
                     input.read(buffer);
-                    e.process(buffer);
+                    effect.processInPlace(buffer);
                     output.write(buffer);
                     buffer.position(0);
                     if (needWrite) {

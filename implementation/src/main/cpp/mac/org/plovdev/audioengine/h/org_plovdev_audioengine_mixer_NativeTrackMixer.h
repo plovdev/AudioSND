@@ -10,7 +10,7 @@ extern "C" {
 /*
  * Class:     org_plovdev_audioengine_mixer_NativeTrackMixer
  * Method:    _doMixing
- * Signature: (Ljava/util/List;Lorg/plovdev/audioengine/tracks/format/TrackFormat;)Lorg/plovdev/audioengine/tracks/Track;
+ * Signature: (Ljava/util/List;Lorg/plovdev/audioengine/format/AudioFormat;)Lorg/plovdev/audioengine/api/Track;
  */
 JNIEXPORT jobject JNICALL Java_org_plovdev_audioengine_mixer_NativeTrackMixer__1doMixing
   (JNIEnv *, jobject, jobject, jobject);

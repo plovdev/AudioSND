@@ -109,16 +109,16 @@ compile_native_cmake() {
         return 1
     fi
 
-    print_info "  Сборка нативной библиотеки..."
+    print_info "Сборка нативной библиотеки..."
     cmake --build . 2>&1 | tee ../build/cmake_build.log
 
     local build_result=$?
     if [ $build_result -eq 0 ]; then
-        print_info "    ✓ Нативная библиотека собрана"
+        print_info "Нативная библиотека собрана"
 
         if [[ "$os_name" == "Darwin" ]]; then
             if [ -f "../implementation/src/main/resources/natives/libs/audio-snd.dylib" ]; then
-                print_info "Библиотека создана: implementation/src/main/resources/natives/libs/audio-snd.dylib"
+                print_info "Библиотека создана: implementation/src/main/resources/natives/libs/libaudio-snd.dylib"
             else
                 print_warn "Библиотека не найдена в ожидаемом месте"
             fi
@@ -142,11 +142,7 @@ main() {
     
     check_dependencies
     create_dirs
-    find_java_files
     find_cpp_files
-    
-    # Компиляция Java
-    compile_java_modules
     
     # Компиляция нативной библиотеки с CMake
     compile_native_cmake
@@ -169,10 +165,6 @@ main() {
         ls -la implementation/src/main/resources/natives/libs/*.so 2>/dev/null || echo "  Не найдены"
     fi
     echo "================================================"
-
-    rm audio-snd.dylib;
-    rm audio-snd.so;
-    rm audio-snd.dll;
 }
 
 main "$@"

@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.plovdev.audioengine.exceptions.devices.AudioDeviceException;
 import org.plovdev.audioengine.exceptions.devices.CloseAudioDeviceException;
 import org.plovdev.audioengine.exceptions.devices.OpenAudioDeviceException;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,15 +18,15 @@ import static org.plovdev.audioengine.devices.AudioDeviceStatus.*;
 /**
  * Класс, который обеспечивает запись в аудио устройства.
  *
- * @version 1.0
  * @author Anton
+ * @version 1.0
  */
 public final class NativeOutputAudioDevice implements OutputAudioDevice {
     private long nativeHandle = 0;
 
     private static final Logger log = LoggerFactory.getLogger(NativeOutputAudioDevice.class);
     private final AudioDeviceInfo info;
-    private TrackFormat trackFormat;
+    private AudioFormat trackFormat;
     private volatile AudioDeviceStatus status = UNAVAILABLE;
     private final AtomicBoolean isInited = new AtomicBoolean(false);
     private Runnable onStatusChanged = () -> {
@@ -34,6 +34,7 @@ public final class NativeOutputAudioDevice implements OutputAudioDevice {
 
     /**
      * Создает экземпляр для работы над аудио устройстовм
+     *
      * @param info устройство с которым будет работать класс.
      */
     public NativeOutputAudioDevice(@NotNull AudioDeviceInfo info) {
@@ -51,7 +52,7 @@ public final class NativeOutputAudioDevice implements OutputAudioDevice {
      * @throws OpenAudioDeviceException when opening failed.
      */
     @Override
-    public synchronized void open(TrackFormat format) throws OpenAudioDeviceException {
+    public synchronized void open(AudioFormat format) throws OpenAudioDeviceException {
         if (isInited.get()) {
             log.warn("Audio device {} already opened with format: {}", info.id(), trackFormat);
             return;
@@ -78,6 +79,7 @@ public final class NativeOutputAudioDevice implements OutputAudioDevice {
 
     /**
      * Write data to audio device
+     *
      * @param byteBuffer data to write
      * @return wrote bytes
      */
@@ -174,6 +176,7 @@ public final class NativeOutputAudioDevice implements OutputAudioDevice {
 
     /**
      * Set listener, which called when audio device status changing
+     *
      * @param onChange new listener
      */
     public synchronized void setOnStatusChanged(Runnable onChange) {
@@ -200,9 +203,10 @@ public final class NativeOutputAudioDevice implements OutputAudioDevice {
 
     /**
      * Return format, which audio device opened.
+     *
      * @return format
      */
-    public TrackFormat getTrackFormat() {
+    public AudioFormat getTrackFormat() {
         return trackFormat;
     }
 
@@ -224,7 +228,7 @@ public final class NativeOutputAudioDevice implements OutputAudioDevice {
 
     //============NATIVIES============\\
 
-    private native long _open(TrackFormat format, AudioDeviceInfo info);
+    private native long _open(AudioFormat format, AudioDeviceInfo info);
 
     private native int _write(ByteBuffer buffer, long handle);
 

@@ -35,7 +35,7 @@ public class WavTrackOutputStream extends TrackOutputStream {
 
         ByteArrayOutputStream fmtBuffer = new ByteArrayOutputStream();
         WavChunkWriterManager manager = new WavChunkWriterManager(fmtBuffer);
-        manager.writeChunk(WavChunkId.FMT, trackFormat);
+        manager.writeChunk(WavChunkId.FMT, trackFormat, trackFormat);
         fmtBuffer.writeTo(toWrite);
         toWrite.write(DATA.getChunk().getBytes());
         toWrite.flush();

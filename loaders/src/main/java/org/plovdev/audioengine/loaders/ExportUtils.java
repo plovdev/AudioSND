@@ -1,5 +1,6 @@
 package org.plovdev.audioengine.loaders;
 
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
 
 import java.io.*;
@@ -9,15 +10,15 @@ import java.time.Duration;
 import java.util.List;
 
 public class ExportUtils {
-    public static byte[] intToLittleEndian(int value) {
+    public static byte @NonNull [] intToLittleEndian(int value) {
         return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(value).array();
     }
 
-    public static byte[] shortToLittleEndian(short value) {
+    public static byte @NonNull [] shortToLittleEndian(short value) {
         return ByteBuffer.allocate(2).order(ByteOrder.LITTLE_ENDIAN).putShort(value).array();
     }
 
-    public static byte[] floatToLittleEndian(float value) {
+    public static byte @NonNull [] floatToLittleEndian(float value) {
         return ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putFloat(value).array();
     }
 
@@ -29,8 +30,7 @@ public class ExportUtils {
         return value;
     }
 
-
-    public static byte[] readFileToByteArray(File file) throws IOException {
+    public static byte @NonNull [] readFileToByteArray(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file);
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 
@@ -43,7 +43,7 @@ public class ExportUtils {
         }
     }
 
-    public static byte[] readStreamToByteArray(InputStream stream) throws IOException {
+    public static byte @NonNull [] readStreamToByteArray(@NonNull InputStream stream) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         byte[] buffer = new byte[4096];
         int bytesRead;
@@ -53,7 +53,7 @@ public class ExportUtils {
         return bos.toByteArray();
     }
 
-    public static File getFile(File file, List<PathLocator> locators) {
+    public static @NonNull File getFile(@NonNull File file, List<PathLocator> locators) {
         if (!file.exists()) {
             for (PathLocator locator : locators) {
                 String newPath = locator.getPath().toString() + "/" + file.toPath();

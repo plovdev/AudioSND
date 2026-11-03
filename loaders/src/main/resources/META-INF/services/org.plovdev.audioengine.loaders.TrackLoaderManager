@@ -1,2 +1,1 @@
 org.plovdev.audioengine.loaders.wav.WavTrackLoaderManager
-org.plovdev.audioengine.loaders.flac.FlacTrackLoaderManager

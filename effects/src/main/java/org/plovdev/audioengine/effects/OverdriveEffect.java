@@ -1,8 +1,8 @@
 package org.plovdev.audioengine.effects;
 
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 
-import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static org.plovdev.audioengine.math.AudioMath.clamp;
 
@@ -12,7 +12,9 @@ import static org.plovdev.audioengine.math.AudioMath.clamp;
  * @author Anton
  * @version 2.0
  */
-public class OverdriveEffect implements AudioEffect {
+public class OverdriveEffect extends AudioEffect {
+    private static final String EFFECT_NAME = "Ovverdrive";
+
     private static final float MIN_DRIVE = 0.0f;
     private static final float MAX_DRIVE = 2.0f;
     private static final float MIN_LEVEL = 0.0f;
@@ -22,8 +24,6 @@ public class OverdriveEffect implements AudioEffect {
 
     public enum OverdriveType {SOFT_CLIPPING, HARD_CLIPPING, TUBE_SIMULATION, FUZZ}
 
-    private final TrackFormat format;
-    private volatile boolean isMuted = false;
     private OverdriveType type;
     private float drive;
     private float level;
@@ -33,23 +33,22 @@ public class OverdriveEffect implements AudioEffect {
     private final NoiseGateEffect noiseGate;
 
     private float previousSample;
-    private final int channels;
 
 
-    public OverdriveEffect(TrackFormat format) {
+    public OverdriveEffect(AudioFormat format) {
         this(format, OverdriveType.FUZZ, 1f, 0.3f, 1f, 0.6f, 0.0f);
     }
 
-    public OverdriveEffect(TrackFormat format, OverdriveType type, float drive, float tone, float level, float mix, float noisegate) {
-        this.format = format;
+    public OverdriveEffect(AudioFormat format, OverdriveType type, float drive, float tone, float level, float mix, float noisegate) {
+        Objects.requireNonNull(format);
+
         this.toneFilter = new ToneFilter(format, tone);
-        this.noiseGate = new NoiseGateEffect(format, noisegate);
+        this.noiseGate = new NoiseGateEffect(noisegate);
         this.type = type;
         this.drive = clamp(drive, MIN_DRIVE, MAX_DRIVE);
         this.level = clamp(level, MIN_LEVEL, MAX_LEVEL);
         this.mix = clamp(mix, MIN_MIX, MAX_MIX);
         this.previousSample = 0.0f;
-        this.channels = format.channels();
         reset();
     }
 
@@ -57,53 +56,20 @@ public class OverdriveEffect implements AudioEffect {
      * Сброс состояния эффекта (для новой обработки)
      */
     @Override
-    public void reset() {
+    public synchronized void reset() {
         previousSample = 0.0f;
-        isMuted = false;
+        isMuted.set(false);
         toneFilter.reset();
         noiseGate.reset();
     }
 
     @Override
-    public synchronized void setMute(boolean mute) {
-        isMuted = mute;
-    }
-
-    @Override
-    public boolean isMuted() {
-        return isMuted;
-    }
-
-    @Override
     public String getName() {
-        return "Overdrive";
+        return EFFECT_NAME;
     }
 
     @Override
-    public synchronized void process(ByteBuffer buffer) {
-        if (format == null) {
-            throw new IllegalStateException("Effect not initialized. Call setup() first.");
-        }
-        if (buffer == null || !buffer.hasRemaining() || isMuted()) {
-            return;
-        }
-
-        buffer.order(format.byteOrder());
-        buffer.rewind();
-        int numSamples = buffer.remaining() / format.bytesPerSample();
-
-        for (int i = 0; i < numSamples; i++) {
-            for (int ch = 0; ch < channels; ch++) {
-                int pos = buffer.position();
-                float sample = EffectUtils.readSample(format, buffer);
-                float processed = processSample(sample);
-                buffer.position(pos);
-                EffectUtils.writeSample(format, buffer, processed);
-            }
-        }
-    }
-
-    private float processSample(float sample) {
+    public float processSample(float sample) {
         float gated = noiseGate.processSample(sample);
         float distorted = toneFilter.processSample(applyDistortion(gated));
         float mixed = sample * (1 - mix) + distorted * mix;

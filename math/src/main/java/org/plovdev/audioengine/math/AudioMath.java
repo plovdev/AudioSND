@@ -28,8 +28,9 @@ public class AudioMath {
 
     /**
      * Converts decibels to linear amplitude.
-     * @param db decibels (-∞ to 0)
-     * @return linear amplitude (0 to 1)
+     *
+     * @param db decibels
+     * @return linear amplitude
      */
     public static float dbToLinear(float db) {
         return (float) Math.pow(10.0, db / 20.0);
@@ -37,8 +38,9 @@ public class AudioMath {
 
     /**
      * Converts linear amplitude to decibels.
-     * @param linear amplitude (0 to 1)
-     * @return decibels (-∞ to 0)
+     *
+     * @param linear amplitude
+     * @return decibels
      */
     public static float linearToDb(float linear) {
         return (float) (20.0 * Math.log10(linear));
@@ -46,6 +48,7 @@ public class AudioMath {
 
     /**
      * Converts semitones to frequency ratio.
+     *
      * @param semitones number of semitones
      * @return frequency multiplier
      */
@@ -55,6 +58,7 @@ public class AudioMath {
 
     /**
      * Converts frequency ratio to semitones.
+     *
      * @param ratio frequency multiplier
      * @return number of semitones
      */
@@ -122,6 +126,7 @@ public class AudioMath {
 
     /**
      * Mixes two samples with crossfade.
+     *
      * @param a first sample
      * @param b second sample
      * @param t mix factor (0 = only 'a', 1 = only 'b')

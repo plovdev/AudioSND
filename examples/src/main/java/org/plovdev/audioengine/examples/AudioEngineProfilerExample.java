@@ -20,8 +20,9 @@ public class AudioEngineProfilerExample {
     }
 
     @Profile
-    public void test() throws Exception {
+    public String test() throws Exception {
         System.out.println("Hi from test");
         Thread.sleep(1000);
+        return "Ok";
     }
 }

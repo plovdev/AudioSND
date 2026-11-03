@@ -1,5 +1,6 @@
 package org.plovdev.audioengine.loaders.raw;
 
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.api.Track;
 import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
 import org.plovdev.audioengine.format.TrackFormat;
@@ -32,7 +33,7 @@ public class RawTrackLoader implements TrackLoader {
     }
 
     @Override
-    public Track loadTrack(File base) throws TrackLoadException {
+    public Track loadTrack(@NonNull File base) throws TrackLoadException {
         log.debug("Loading file: {}", base.getName());
         File file = getFile(base, locators);
         try (InputStream stream = new FileInputStream(file)) {
@@ -83,7 +84,8 @@ public class RawTrackLoader implements TrackLoader {
                 TrackMetadata metadata = getTrackMetadata(duration);
                 metadata.setFileSize((long) allBytes.length);
 
-                return new Track(data, duration, format, metadata);
+                //TODO: decode to float32
+                return new Track(data, duration, format.toAudioFormat(), metadata);
 
             } catch (TrackLoadException e) {
                 if (loadListener != null) {
@@ -94,7 +96,7 @@ public class RawTrackLoader implements TrackLoader {
         } catch (IOException e) { throw new TrackLoadException("Cann't load RAW: " + e.getMessage()); }
     }
 
-    private TrackMetadata getTrackMetadata(Duration duration) {
+    private @NonNull TrackMetadata getTrackMetadata(Duration duration) {
         TrackMetadata metadata = new TrackMetadata();
         metadata.setDuration(duration);
         metadata.setChannels(format.channels());
@@ -108,7 +110,7 @@ public class RawTrackLoader implements TrackLoader {
     }
 
     @Override
-    public Track loadTrack(URI uri) throws TrackLoadException {
+    public Track loadTrack(@NonNull URI uri) throws TrackLoadException {
         return switch (uri.getScheme()) {
             case "file" -> loadTrack(new File(uri.toString()));
             case "https", "http" -> {

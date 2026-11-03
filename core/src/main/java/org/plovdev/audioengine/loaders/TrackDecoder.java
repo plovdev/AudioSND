@@ -1,8 +1,8 @@
 package org.plovdev.audioengine.loaders;
 
+import org.jetbrains.annotations.NotNull;
 import org.plovdev.audioengine.api.Track;
 import org.plovdev.audioengine.format.TrackFormat;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Decodes audio tracks into PCM format.
@@ -24,12 +24,11 @@ public interface TrackDecoder {
      * Output format must be a PCM format supported by the decoder.
      * </p>
      *
-     * @param input     source track (compressed or non-PCM)
-     * @param outFormat target PCM format (sample rate, channels, bit depth)
+     * @param input       source track (compressed or non-PCM)
+     * @param inputFormat input format (sample rate, channels, bit depth)
      * @return new track containing decoded PCM audio data
-     * @throws org.plovdev.audioengine.exceptions.loaders.TrackLoadException
-     *         if decoding fails or output format is not supported
+     * @throws org.plovdev.audioengine.exceptions.loaders.TrackLoadException if decoding fails or output format is not supported
      */
     @NotNull
-    Track decode(@NotNull Track input, @NotNull TrackFormat outFormat);
+    Track decode(@NotNull Track input, @NotNull TrackFormat inputFormat);
 }

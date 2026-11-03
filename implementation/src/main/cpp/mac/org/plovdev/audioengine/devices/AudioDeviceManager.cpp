@@ -7,7 +7,7 @@
 #include <sstream>
 #include <iomanip>
 
-#include "h/org_plovdev_audioengine_devices_AudioDeviceManager.h"
+#include "../h/org_plovdev_audioengine_devices_AudioDeviceManager.h"
 
 // =====================
 // Utils

@@ -1,13 +1,16 @@
 package org.plovdev.audioengine.loaders.wav;
 
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.plovdev.audioengine.api.Track;
 import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
 import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.loaders.format.TrackFormatUtils;
 import org.plovdev.audioengine.loaders.LoadListener;
 import org.plovdev.audioengine.loaders.LoadListenerAdapter;
 import org.plovdev.audioengine.loaders.PathLocator;
 import org.plovdev.audioengine.loaders.TrackLoader;
+import org.plovdev.audioengine.loaders.format.TrackFormatUtils;
 import org.plovdev.audioengine.loaders.wav.chunks.DataChunk;
 import org.plovdev.audioengine.loaders.wav.chunks.FormatChunk;
 import org.plovdev.audioengine.loaders.wav.chunks.ListChunk;
@@ -42,7 +45,7 @@ public class WavTrackLoader implements TrackLoader {
     }
 
     @Override
-    public Track loadTrack(File base) throws TrackLoadException {
+    public Track loadTrack(@NonNull File base) throws TrackLoadException {
         log.debug("Loading file: {}", base.getName());
         File file = getFile(base, locators);
         try (InputStream stream = new FileInputStream(file)) {
@@ -88,7 +91,7 @@ public class WavTrackLoader implements TrackLoader {
                         case ISFT, TPUB -> metadata.setPublisher(content);
                         case ICRD, TDRC, TYER -> metadata.setYear(parsePartialDate(content).getTime());
                         case TDRL -> metadata.setCreationDate(parsePartialDate(content).getTime());
-                        case TBPM -> metadata.setBpm(safeParseFloar(content));
+                        case TBPM -> metadata.setBpm(safeParseFloat(content));
                         case IPRD, TALB -> metadata.setAlbum(content);
                         case IART, TPE1 -> metadata.setArtist(content);
                         case IGNR, TCON -> metadata.setGenre(content);
@@ -135,7 +138,8 @@ public class WavTrackLoader implements TrackLoader {
             if (loadListener != null) {
                 loadListener.onLoadFinished();
             }
-            return new Track(chunk.getData().order(format.byteOrder()), duration, format, metadata);
+
+            return new WavTrackDecoder().decode(new Track(chunk.getData().order(format.byteOrder()), duration, format.toAudioFormat(), metadata), format);
         } catch (Exception e) {
             if (loadListener != null) {
                 loadListener.onLoadFailed(new TrackLoadException(e));
@@ -183,12 +187,11 @@ public class WavTrackLoader implements TrackLoader {
         return null;
     }
 
-    private Calendar parsePartialDate(String input) {
+    private @NonNull Calendar parsePartialDate(@NonNull String input) {
         String[] parts = input.split("-");
         int year = Integer.parseInt(parts[0]);
         int month = (parts.length > 1) ? Integer.parseInt(parts[1]) - 1 : 0; // Месяц 0–11
         int day = (parts.length > 2) ? Integer.parseInt(parts[2]) : 1;
-
 
         Calendar calendar = new GregorianCalendar();
         calendar.set(year, month, day, 0, 0, 0);
@@ -197,17 +200,10 @@ public class WavTrackLoader implements TrackLoader {
         return calendar;
     }
 
-    private Integer safeParseTrackNumber(String number) {
+    @Contract(pure = true)
+    private @Nullable Integer safeParseTrackNumber(String number) {
         try {
             return Integer.parseInt(number);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private Float safeParseFloar(String number) {
-        try {
-            return Float.parseFloat(number);
         } catch (Exception e) {
             return null;
         }
@@ -221,5 +217,14 @@ public class WavTrackLoader implements TrackLoader {
     @Override
     public LoadListener getLoadListener() {
         return loadListener;
+    }
+
+    @Contract(pure = true)
+    private static @Nullable Float safeParseFloat(String floatStr) {
+        try {
+            return Float.parseFloat(floatStr);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

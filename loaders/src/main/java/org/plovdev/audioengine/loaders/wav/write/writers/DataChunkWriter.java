@@ -17,12 +17,11 @@ public class DataChunkWriter implements WavChunkWriter<Track> {
     }
 
     @Override
-    public void write(OutputStream outputStream, Track track) {
+    public void write(OutputStream outputStream, TrackFormat outputFormat, Track track) {
         try {
-            TrackFormat format = track.getFormat();
             ByteBuffer trackData = track.getTrackData();
 
-            int bitDepth = format.bitDepth();
+            int bitDepth = outputFormat.bitDepth();
             int dataChunkSize = trackData.remaining();
 
             outputStream.write(DATA.getChunk().getBytes());

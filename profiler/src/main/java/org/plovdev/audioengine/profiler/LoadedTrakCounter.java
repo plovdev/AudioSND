@@ -1,5 +1,7 @@
 package org.plovdev.audioengine.profiler;
 
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +32,8 @@ public class LoadedTrakCounter {
             return 0;
         }
     }
-    private static boolean filterLine(String line) {
+    @Contract(pure = true)
+    private static boolean filterLine(@NonNull String line) {
         return line.contains("org.plovdev.audioengine.api.Track");
     }
 }

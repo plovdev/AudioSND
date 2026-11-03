@@ -1,13 +1,15 @@
 package org.plovdev.audioengine.effects;
 
-import org.plovdev.audioengine.format.TrackFormat;
+import org.jspecify.annotations.NonNull;
+import org.plovdev.audioengine.format.AudioFormat;
 
-import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static org.plovdev.audioengine.math.AudioMath.clamp;
 
-public class ReverbEffect implements AudioEffect {
+public class ReverbEffect extends AudioEffect {
+    private static final String EFFECT_NAME = "Reverb";
+
     private static final int[] COMB_TUNINGS = {1116, 1188, 1277, 1356, 1422, 1491, 1557, 1617};
     private static final int[] ALLPASS_TUNINGS = {225, 341, 441, 556};
     private static final float COMB_GAIN_BASE = 0.001f;
@@ -18,9 +20,7 @@ public class ReverbEffect implements AudioEffect {
 
     private final float sampleRate;
     private final int channels;
-
-    private final TrackFormat format;
-    private volatile boolean isMuted = false;
+    private int channel = 0;
 
     private RoomType type;
     private float roomSize;
@@ -33,50 +33,26 @@ public class ReverbEffect implements AudioEffect {
     private float[][] allpassBuffers;
     private int[] allpassIndices;
 
-    public ReverbEffect(TrackFormat format) {
+    public ReverbEffect(AudioFormat format) {
         this(format, RoomType.HALL, 1f, 1f, 0.5f, 0.5f);
     }
 
-    public ReverbEffect(TrackFormat format, RoomType type, float roomSize, float decayTime, float damping, float mix) {
+    public ReverbEffect(@NonNull AudioFormat format, RoomType type, float roomSize, float decayTime, float damping, float mix) {
+        Objects.requireNonNull(format);
         this.type = type;
         this.roomSize = clamp(roomSize, 0.0f, 1.0f);
         this.decayTime = clamp(decayTime, 0.1f, 10.0f);
         this.damping = clamp(damping, 0.0f, 1.0f);
         this.mix = clamp(mix, 0.0f, 1.0f);
 
-        this.format = format;
         this.sampleRate = format.sampleRate();
         this.channels = format.channels();
         initializeBuffers();
     }
 
     @Override
-    public void process(ByteBuffer source) {
-        if (format == null) {
-            throw new IllegalStateException("Effect not initialized. Call setup() first.");
-        }
-        if (!isMuted()) {
-            source.order(format.byteOrder());
-            source.rewind();
-
-            int bytesPerFrame = format.bytesPerSample() * channels;
-            int totalFrames = source.remaining() / bytesPerFrame;
-
-            for (int i = 0; i < totalFrames; i++) {
-                for (int ch = 0; ch < channels; ch++) {
-                    int pos = source.position();
-                    float input = EffectUtils.readSample(format, source);
-                    float output = processSample(input, ch);
-                    source.position(pos);
-                    EffectUtils.writeSample(format, source, output);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void reset() {
-        isMuted = false;
+    public synchronized void reset() {
+        isMuted.set(false);
         type = RoomType.HALL;
         roomSize = 1;
         decayTime = 1;
@@ -85,21 +61,12 @@ public class ReverbEffect implements AudioEffect {
     }
 
     @Override
-    public synchronized void setMute(boolean mute) {
-        isMuted = mute;
-    }
-
-    @Override
-    public boolean isMuted() {
-        return isMuted;
-    }
-
-    @Override
     public String getName() {
-        return "Reverb";
+        return EFFECT_NAME;
     }
 
-    private float processSample(float input, int channel) {
+    @Override
+    public float processSample(float input) {
         float earlyReflections = input * 0.3f;
 
         float combSum = 0;
@@ -127,9 +94,15 @@ public class ReverbEffect implements AudioEffect {
         }
 
         float wetSignal = earlyReflections * 0.2f + allpassOut * 0.8f;
+
+        if (channel == channels - 1) {
+            channel = 0;
+        } else {
+            channel++;
+        }
+
         return input * (1.0f - mix) + wetSignal * mix;
     }
-
 
     public void setType(RoomType type) {
         this.type = Objects.requireNonNull(type);
@@ -143,12 +116,12 @@ public class ReverbEffect implements AudioEffect {
 
     public void setDecayTime(float decayTime) {
         this.decayTime = clamp(decayTime, 0.1f, 10.0f);
-        if (format != null) initializeBuffers();
+        initializeBuffers();
     }
 
     public void setDamping(float damping) {
         this.damping = clamp(damping, 0.0f, 1.0f);
-        if (format != null) initializeBuffers();
+        initializeBuffers();
     }
 
     public void setMix(float mix) {

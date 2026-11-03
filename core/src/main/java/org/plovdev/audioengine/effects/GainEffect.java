@@ -1,22 +1,15 @@
 package org.plovdev.audioengine.effects;
 
-import org.plovdev.audioengine.format.AudioFormat;
-
-import java.nio.ByteBuffer;
-
-public class GainEffect implements AudioEffect {
-    private final AudioFormat format;
-
-    private volatile boolean isMuted = false;
+public class GainEffect extends AudioEffect {
+    private static final String EFFECT_NAME = "Gain";
     private float gain = 1;
 
-    public GainEffect(AudioFormat format, float gain) {
-        this.format = format;
-        setGain(gain);
+    public GainEffect() {
+        this(1);
     }
 
-    public GainEffect(AudioFormat format) {
-        this(format, 1);
+    public GainEffect(float gain) {
+        setGain(gain);
     }
 
     public float getGain() {
@@ -28,42 +21,18 @@ public class GainEffect implements AudioEffect {
     }
 
     @Override
-    public synchronized void process(ByteBuffer input) {
-        if (format == null) {
-            throw new IllegalStateException("GainEffect not initializated");
-        }
-
-        if (!isMuted()) {
-            input.rewind();
-
-            while (input.remaining() >= 4) {
-                int pos = input.position();
-                float sample = input.getFloat();
-                float amplified = sample * gain;
-                input.position(pos);
-                input.putFloat(amplified);
-            }
-        }
+    public float processSample(float sample) {
+        return sample * gain;
     }
 
     @Override
-    public void reset() {
+    public synchronized void reset() {
+        isMuted.set(false);
         gain = 1;
-        isMuted = false;
-    }
-
-    @Override
-    public synchronized void setMute(boolean mute) {
-        isMuted = mute;
-    }
-
-    @Override
-    public boolean isMuted() {
-        return isMuted;
     }
 
     @Override
     public String getName() {
-        return "Gain";
+        return EFFECT_NAME;
     }
 }

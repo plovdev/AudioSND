@@ -1,5 +1,8 @@
 package org.plovdev.audioengine.engineconfig;
 
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.NonNull;
+
 import java.util.Objects;
 import java.util.prefs.Preferences;
 
@@ -16,7 +19,6 @@ import java.util.prefs.Preferences;
 public class AudioEngineConfig {
     // Preferences engine keys
     private static final String NATIVE_LIB_KEY = "native-lib";
-    private static final String IGNORE_NATIVE_WHEN_FAIL = "inwf";
     private static final String BANNER = "banner";
     public static final String VERSION = "1.0.0-BETA";
     private static final String DEFAULT_PREFS_KEY = "AudioSND";
@@ -24,16 +26,14 @@ public class AudioEngineConfig {
     // Configurable fields
     private NativeLib nativeLib;
     private String banner;
-    private boolean ignoreNativeWhenFail;
 
     /**
      * Creates a configuration instance with specified parameters.
      *
      */
-    public AudioEngineConfig(NativeLib lib, String banner, boolean inwf) {
+    public AudioEngineConfig(NativeLib lib, String banner) {
         setNativeLib(lib);
         setBanner(banner);
-        setIgnoreNativeWhenFail(inwf);
     }
 
     /**
@@ -41,7 +41,7 @@ public class AudioEngineConfig {
      *
      * @return loaded or default configuration
      */
-    public static AudioEngineConfig load() {
+    public static @NonNull AudioEngineConfig load() {
         return load(DEFAULT_PREFS_KEY);
     }
 
@@ -52,7 +52,7 @@ public class AudioEngineConfig {
      * @return loaded configuration
      * @see Preferences#userRoot()
      */
-    public static AudioEngineConfig load(String prefsKey) {
+    public static @NonNull AudioEngineConfig load(String prefsKey) {
         Preferences prefs = Preferences.userRoot().node(prefsKey);
         NativeLib lib = NativeLib.valueOf(prefs.get(NATIVE_LIB_KEY, NativeLib.DEFAULT.name()));
         String banner = prefs.get(BANNER, String.format("""
@@ -64,9 +64,7 @@ public class AudioEngineConfig {
                                      ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝ ╚═════╝    ╚══════╝╚═╝  ╚═══╝╚═════╝
                                                 High-Performance Audio Engine v%s
                 """, VERSION));
-        boolean inwf = prefs.getBoolean(IGNORE_NATIVE_WHEN_FAIL, false);
-
-        return new AudioEngineConfig(lib, banner, inwf);
+        return new AudioEngineConfig(lib, banner);
     }
 
     /**
@@ -88,7 +86,6 @@ public class AudioEngineConfig {
         Preferences prefs = Preferences.userRoot().node(prefsKey);
         prefs.put(NATIVE_LIB_KEY, nativeLib.name());
         prefs.put(BANNER, banner);
-        prefs.putBoolean(IGNORE_NATIVE_WHEN_FAIL, ignoreNativeWhenFail);
     }
 
     // Getters and setters
@@ -109,15 +106,8 @@ public class AudioEngineConfig {
         this.banner = Objects.requireNonNull(banner);
     }
 
-    public boolean isIgnoreNativeWhenFail() {
-        return ignoreNativeWhenFail;
-    }
-
-    public void setIgnoreNativeWhenFail(boolean ignoreNativeWhenFail) {
-        this.ignoreNativeWhenFail = ignoreNativeWhenFail;
-    }
-
-    public static AudioEngineConfigBuilder builder() {
+    @Contract(" -> new")
+    public static @NonNull AudioEngineConfigBuilder builder() {
         return new EngineConfigBuilderImpl();
     }
 
@@ -141,16 +131,21 @@ public class AudioEngineConfig {
 
     /**
      * AudioEngine config builder.
-     * @see EngineConfigBuilderImpl
      *
      * @author Anton
+     * @see EngineConfigBuilderImpl
      * @since 1.0
      */
     public interface AudioEngineConfigBuilder {
         AudioEngineConfigBuilder nativeLib(NativeLib lib);
+
         AudioEngineConfigBuilder banner(String banner);
-        AudioEngineConfigBuilder ignoreNativeWhenFail(boolean inwf);
 
         AudioEngineConfig configurate();
+    }
+
+    @Override
+    public String toString() {
+        return DEFAULT_PREFS_KEY + ":" + VERSION + "(" + nativeLib + ")";
     }
 }

@@ -1,8 +1,8 @@
 package org.plovdev.audioengine.mixer;
 
-import org.plovdev.audioengine.exceptions.MixingException;
 import org.plovdev.audioengine.api.Track;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.exceptions.MixingException;
+import org.plovdev.audioengine.format.AudioFormat;
 
 import java.util.List;
 
@@ -16,28 +16,31 @@ public interface TrackMixer {
     /**
      * Setup output track format(after mixing)
      */
-    void setOutputFormat(TrackFormat format);
+    void setOutputFormat(AudioFormat format);
 
     /**
      * Get configured output track format
      */
-    TrackFormat getOutputFormat();
+    AudioFormat getOutputFormat();
 
 
     /**
      * Adds a track to the mixing list
+     *
      * @param track to mix
      */
     void addTrack(Track track);
 
     /**
      * Removes a track from the mixing list
+     *
      * @param track track to mix
      */
     void removeTrack(Track track);
 
     /**
      * Get all tracks, which will be mixing.
+     *
      * @return mixing tracks
      */
     List<Track> getMixingTracks();
@@ -51,7 +54,7 @@ public interface TrackMixer {
      * Mixes all added tracks into a single new track.
      * <p>
      * Creates a new track instance. Original tracks are not modified.
-     * Output format must be set via {@link #setOutputFormat(TrackFormat)}
+     * Output format must be set via {@link #setOutputFormat(AudioFormat)}
      * before calling this method.
      * </p>
      *
@@ -65,6 +68,7 @@ public interface TrackMixer {
 
     /**
      * Returns tracks in mixer.
+     *
      * @return mixing tracks.
      */
     default int getTrackCount() {

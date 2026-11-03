@@ -75,18 +75,14 @@ message(STATUS "JNI include directories: ${JNI_INCLUDE_DIRS}")
 
 add_library(AudioSND SHARED)
 
-# ==== ДОБАВЬТЕ ЭТО ДЛЯ macOS =====
 if(APPLE)
     target_link_libraries(AudioSND "-framework AudioToolbox -framework CoreAudio -framework CoreFoundation")
 endif()
-# =================================
 
 add_library(AudioSND::AudioSND ALIAS AudioSND)
 
 file(GLOB_RECURSE LIB_SOURCES "*.cpp")
 target_sources(AudioSND PRIVATE ${LIB_SOURCES})
-
-# Добавляем JIN пути в include директории
 target_include_directories(AudioSND PRIVATE ${JNI_INCLUDE_DIRS})
 
 target_include_directories(AudioSND PUBLIC
@@ -95,10 +91,10 @@ target_include_directories(AudioSND PUBLIC
 )
 
 set_target_properties(AudioSND PROPERTIES
-    VERSION ""
-    SOVERSION ""
-    OUTPUT_NAME "audio-snd"
-)
+            VERSION ""
+            SOVERSION ""
+            OUTPUT_NAME "audio-snd"
+        )
 
 if(WIN32)
     target_compile_definitions(AudioSND PRIVATE AudioSND_EXPORTS)
@@ -118,6 +114,6 @@ endif()
 add_custom_command(TARGET AudioSND POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "$<TARGET_FILE:AudioSND>"
-        "${RESOURCES_DIR}/$<TARGET_FILE_BASE_NAME:AudioSND>$<TARGET_FILE_SUFFIX:AudioSND>"
+        "${RESOURCES_DIR}/libaudio-snd.dylib"
     COMMENT "Копирование библиотеки в resources/natives/libs"
 )

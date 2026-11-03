@@ -1,5 +1,7 @@
 package org.plovdev.audioengine.loaders.wav.decoders;
 
+import org.jspecify.annotations.NonNull;
+import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.loaders.Decoder;
 
 import java.nio.ByteBuffer;
@@ -7,6 +9,7 @@ import java.nio.ByteBuffer;
 public class ULawDecoder implements Decoder {
     // Таблица декдирования ulaw
     private static final short[] TABLE = new short[256];
+
     // раз за работу движка
     static {
         for (int i = 0; i < 256; i++) {
@@ -38,18 +41,16 @@ public class ULawDecoder implements Decoder {
     }
 
     @Override
-    public ByteBuffer decode(ByteBuffer ulawData) {
+    public ByteBuffer decode(@NonNull ByteBuffer ulawData) {
         ulawData.rewind();
 
         int samples = ulawData.remaining();
-        ByteBuffer pcm = ByteBuffer
-                .allocateDirect(samples * 2)
-                .order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer pcm = ByteBuffer.allocateDirect(samples * 2).order(java.nio.ByteOrder.LITTLE_ENDIAN);
 
         for (int i = 0; i < samples; i++) {
             pcm.putShort(decode(ulawData.get()));
         }
 
-        return pcm.flip();
+        return CoderUtils.decodeToFloat32(pcm.flip(), TrackFormat.AudioCodec.PCM16);
     }
 }

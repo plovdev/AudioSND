@@ -17,7 +17,7 @@ public class Functions {
     public static final float TWO_PI = 6.2831855f;
 
     private Functions() {
-        throw new UnsupportedOperationException("No no no, this class cannot be instantiated!");
+        throw new UnsupportedOperationException("Utility class - do not instantiate!");
     }
 
     /**

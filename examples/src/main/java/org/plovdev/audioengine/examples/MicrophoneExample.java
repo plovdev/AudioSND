@@ -13,7 +13,7 @@ public class MicrophoneExample {
 
     void main(String[] args) {
         try (AudioEngine engine = new NativeAudioEngine();
-             NativeAudioRecorder microphone = new NativeAudioRecorder(AudioDeviceManager.getInstance().getDefaultInputAudioDevice().supportedFormats().getFirst(), AudioDeviceManager.getInstance().getDefaultInputAudioDevice())) {
+             NativeAudioRecorder microphone = new NativeAudioRecorder(AudioDeviceManager.getInstance().getDefaultInputAudioDevice().supportedFormats().getFirst().toAudioFormat(), AudioDeviceManager.getInstance().getDefaultInputAudioDevice())) {
             microphone.setOnChunkRecorded(() -> System.out.println("Chunk played"));
             microphone.start(); // начинаем запись
             Thread.sleep(10000); // условно, ждем сколько надо.

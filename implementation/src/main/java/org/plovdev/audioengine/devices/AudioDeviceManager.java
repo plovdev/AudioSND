@@ -1,5 +1,7 @@
 package org.plovdev.audioengine.devices;
 
+import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +37,7 @@ public class AudioDeviceManager {
     /**
      * Метод для получения инстанса NativeAudioDeviceManager.h.
      *
-     * @return NativeAudioDeviceManager.h singleton instance
+     * @return NativeAudioDeviceManager singleton instance
      */
     public static AudioDeviceManager getInstance() {
         if (INSTANCE == null) {
@@ -71,7 +73,8 @@ public class AudioDeviceManager {
         return getAudioDevice(id, getOutputAudioDevices());
     }
 
-    private AudioDeviceInfo getAudioDevice(String id, List<AudioDeviceInfo> infos) {
+    @Contract("null, _ -> fail; !null, null -> fail")
+    private @NonNull AudioDeviceInfo getAudioDevice(String id, List<AudioDeviceInfo> infos) {
         if (id == null) throw new IllegalArgumentException("ID cannot be null");
         if (infos == null) throw new IllegalArgumentException("Devices list cannot be null");
 

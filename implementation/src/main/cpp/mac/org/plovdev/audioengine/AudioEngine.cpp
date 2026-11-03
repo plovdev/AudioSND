@@ -1,5 +1,5 @@
 #include <jni.h>
-#include "org_plovdev_audioengine_NativeAudioEngine.h"
+#include "h/org_plovdev_audioengine_NativeAudioEngine.h"
 
 // Глобальные структуры движка (например, карты устройств)
 static bool engineInitialized = false;

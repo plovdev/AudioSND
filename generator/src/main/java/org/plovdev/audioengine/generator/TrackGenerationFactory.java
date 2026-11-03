@@ -1,22 +1,30 @@
 package org.plovdev.audioengine.generator;
 
+import org.jspecify.annotations.NonNull;
+import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.format.AudioFormat;
 import org.plovdev.audioengine.generator.config.GenerationConfig;
 import org.plovdev.audioengine.generator.note.Note;
 import org.plovdev.audioengine.generator.strategies.envelope.*;
-import org.plovdev.audioengine.generator.strategies.frequency.*;
+import org.plovdev.audioengine.generator.strategies.frequency.ConstantFrequency;
+import org.plovdev.audioengine.generator.strategies.frequency.LinearFrequency;
 import org.plovdev.audioengine.generator.strategies.modulation.LFOModulation;
-import org.plovdev.audioengine.generator.strategies.noise.*;
-import org.plovdev.audioengine.generator.strategies.wave.*;
-import org.plovdev.audioengine.api.Track;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.generator.strategies.noise.BrownNoise;
+import org.plovdev.audioengine.generator.strategies.noise.NoiseStrategy;
+import org.plovdev.audioengine.generator.strategies.noise.PinkNoise;
+import org.plovdev.audioengine.generator.strategies.noise.WhiteNoise;
+import org.plovdev.audioengine.generator.strategies.wave.SawtoothWave;
+import org.plovdev.audioengine.generator.strategies.wave.SineWave;
+import org.plovdev.audioengine.generator.strategies.wave.SquareWave;
+import org.plovdev.audioengine.generator.strategies.wave.TriangleWave;
 
 import java.time.Duration;
 
 /**
  * Factory for creating common audio generator configurations.
  *
- * @version 1.0
  * @author Anton
+ * @version 1.0
  */
 public class TrackGenerationFactory {
 
@@ -25,7 +33,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a sine wave tone from a note.
      */
-    public static Track generateSineWave(Duration duration, TrackFormat format, Note note) {
+    public static Track generateSineWave(Duration duration, @NonNull AudioFormat format, @NonNull Note note) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())
@@ -38,7 +46,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a square wave tone from a note.
      */
-    public static Track generateSquareWave(Duration duration, TrackFormat format, Note note, float dutyCycle) {
+    public static Track generateSquareWave(Duration duration, @NonNull AudioFormat format, @NonNull Note note, float dutyCycle) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SquareWave(0.5f))
@@ -51,7 +59,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a sawtooth wave tone from a note.
      */
-    public static Track generateSawtoothWave(Duration duration, TrackFormat format, Note note) {
+    public static Track generateSawtoothWave(Duration duration, @NonNull AudioFormat format, @NonNull Note note) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SawtoothWave())
@@ -64,7 +72,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a triangle wave tone from a note.
      */
-    public static Track generateTriangleWave(Duration duration, TrackFormat format, Note note) {
+    public static Track generateTriangleWave(Duration duration, @NonNull AudioFormat format, @NonNull Note note) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new TriangleWave())
@@ -79,7 +87,7 @@ public class TrackGenerationFactory {
     /**
      * Creates white noise.
      */
-    public static Track generateWhiteNoise(Duration duration, TrackFormat format) {
+    public static Track generateWhiteNoise(Duration duration, @NonNull AudioFormat format) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), 0))
                 .waveStrategy(new SineWave())
@@ -94,7 +102,7 @@ public class TrackGenerationFactory {
     /**
      * Creates pink noise.
      */
-    public static Track generatePinkNoise(Duration duration, TrackFormat format) {
+    public static Track generatePinkNoise(Duration duration, @NonNull AudioFormat format) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), 0))
                 .waveStrategy(new SineWave())
@@ -109,7 +117,7 @@ public class TrackGenerationFactory {
     /**
      * Creates brown noise.
      */
-    public static Track generateBrownNoise(Duration duration, TrackFormat format) {
+    public static Track generateBrownNoise(Duration duration, @NonNull AudioFormat format) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), 0))
                 .waveStrategy(new SineWave())
@@ -126,7 +134,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a linear frequency sweep.
      */
-    public static Track generateLinearSweep(Duration duration, TrackFormat format, Note start, Note end) {
+    public static Track generateLinearSweep(Duration duration, @NonNull AudioFormat format, @NonNull Note start, @NonNull Note end) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new LinearFrequency(format.channels(), start.frequency(), end.frequency()))
                 .waveStrategy(new SineWave())
@@ -139,7 +147,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a linear frequency sweep with square wave.
      */
-    public static Track generateSquareSweep(Duration duration, TrackFormat format, Note start, Note end) {
+    public static Track generateSquareSweep(Duration duration, @NonNull AudioFormat format, @NonNull Note start, @NonNull Note end) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new LinearFrequency(format.channels(), start.frequency(), end.frequency()))
                 .waveStrategy(new SquareWave(0.5f))
@@ -154,7 +162,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a tone with ADSR envelope.
      */
-    public static Track generateWithADSR(Duration duration, TrackFormat format, Note note, float attack, float decay, float sustain, float release) {
+    public static Track generateWithADSR(Duration duration, @NonNull AudioFormat format, @NonNull Note note, float attack, float decay, float sustain, float release) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())
@@ -167,7 +175,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a tone with linear fade in/out.
      */
-    public static Track generateWithFade(Duration duration, TrackFormat format, Note note, float fadeIn, float fadeOut) {
+    public static Track generateWithFade(Duration duration, @NonNull AudioFormat format, @NonNull Note note, float fadeIn, float fadeOut) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())
@@ -180,7 +188,7 @@ public class TrackGenerationFactory {
     /**
      * Creates an exponentially decaying tone.
      */
-    public static Track generateExponentialDecay(Duration duration, TrackFormat format, Note note, float decayFactor) {
+    public static Track generateExponentialDecay(Duration duration, @NonNull AudioFormat format, @NonNull Note note, float decayFactor) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())
@@ -193,7 +201,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a tone with Hann window envelope.
      */
-    public static Track generateHannWindow(Duration duration, TrackFormat format, Note note) {
+    public static Track generateHannWindow(Duration duration, @NonNull AudioFormat format, @NonNull Note note) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())
@@ -208,7 +216,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a tone with vibrato (frequency modulation).
      */
-    public static Track generateWithVibrato(Duration duration, TrackFormat format, Note note, float rate, float depth) {
+    public static Track generateWithVibrato(Duration duration, @NonNull AudioFormat format, @NonNull Note note, float rate, float depth) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())
@@ -224,7 +232,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a tone with stereo panning.
      */
-    public static Track generateWithPan(Duration duration, TrackFormat format, Note note, float pan) {
+    public static Track generateWithPan(Duration duration, @NonNull AudioFormat format, @NonNull Note note, float pan) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())
@@ -240,7 +248,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a complex sound with sawtooth wave, ADSR envelope and vibrato.
      */
-    public static Track generateComplexTone(Duration duration, TrackFormat format, Note note, float attack, float decay, float sustain, float release, float vibratoRate, float vibratoDepth) {
+    public static Track generateComplexTone(Duration duration, @NonNull AudioFormat format, @NonNull Note note, float attack, float decay, float sustain, float release, float vibratoRate, float vibratoDepth) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SawtoothWave())
@@ -254,7 +262,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a tone with noise mixed in.
      */
-    public static Track generateWithNoise(Duration duration, TrackFormat format, Note note, float noiseLevel, NoiseStrategy noiseStrategy) {
+    public static Track generateWithNoise(Duration duration, @NonNull AudioFormat format, @NonNull Note note, float noiseLevel, NoiseStrategy noiseStrategy) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())
@@ -269,7 +277,7 @@ public class TrackGenerationFactory {
     /**
      * Creates a silent track.
      */
-    public static Track generateSilence(Duration duration, TrackFormat format) {
+    public static Track generateSilence(Duration duration, @NonNull AudioFormat format) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), 0))
                 .waveStrategy(new SineWave())
@@ -284,14 +292,14 @@ public class TrackGenerationFactory {
     /**
      * Simple piano-like sound.
      */
-    public static Track generatePianoLike(Duration duration, TrackFormat format, Note note) {
+    public static Track generatePianoLike(Duration duration, AudioFormat format, Note note) {
         return generateWithADSR(duration, format, note, 0.09f, 0.1f, 0.1f, 0.1f);
     }
 
     /**
      * Simple guitar-like sound.
      */
-    public static Track generateGuitarLike(Duration duration, TrackFormat format, Note note, float dc) {
+    public static Track generateGuitarLike(Duration duration, @NonNull AudioFormat format, @NonNull Note note) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SquareWave(0.5f))
@@ -304,7 +312,7 @@ public class TrackGenerationFactory {
     /**
      * Simple flute-like sound.
      */
-    public static Track generateFluteLike(Duration duration, TrackFormat format, Note note) {
+    public static Track generateFluteLike(Duration duration, @NonNull AudioFormat format, @NonNull Note note) {
         GenerationConfig config = GenerationConfig.builder()
                 .frequencyStrategy(new ConstantFrequency(format.channels(), note.frequency()))
                 .waveStrategy(new SineWave())

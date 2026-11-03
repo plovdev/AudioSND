@@ -1,5 +1,6 @@
 package org.plovdev.audioengine.loaders.wav.write.writers;
 
+import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.metadata.MetaKey;
 import org.plovdev.audioengine.metadata.TrackMetadata;
 import org.plovdev.audioengine.metadata.image.TrackImage;
@@ -24,7 +25,7 @@ public class ID3ChunkWriter implements WavChunkWriter<TrackMetadata> {
     }
 
     @Override
-    public void write(OutputStream stream, TrackMetadata metadata) {
+    public void write(OutputStream stream, TrackFormat outputFormat, TrackMetadata metadata) {
         try {
             ByteArrayOutputStream id3Data = new ByteArrayOutputStream();
 

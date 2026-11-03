@@ -1,5 +1,6 @@
 package org.plovdev.audioengine.loaders.wav;
 
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.loaders.*;
 import org.plovdev.audioengine.loaders.wav.write.WavTrackExporter;
@@ -13,13 +14,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.ALAW;
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.FLOAT32;
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.FLOAT64;
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.IMA_ADPCM;
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.MIC_ADPCM;
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.PCM32;
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.ULAW;
+import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.*;
 
 public class WavTrackLoaderManager implements TrackLoaderManager {
     private static final Logger log = LoggerFactory.getLogger(WavTrackLoaderManager.class);
@@ -68,7 +63,7 @@ public class WavTrackLoaderManager implements TrackLoaderManager {
     }
 
     @Override
-    public boolean isSupported(TrackFormat format) {
+    public boolean isSupported(@NonNull TrackFormat format) {
         TrackFormat.AudioCodec codec = format.audioCodec();
         return supportedCodecs.contains(codec);
     }
@@ -118,7 +113,7 @@ public class WavTrackLoaderManager implements TrackLoaderManager {
     }
 
     @Override
-    public boolean isSupported(URI uri) {
+    public boolean isSupported(@NonNull URI uri) {
         return isSupported(new File(uri.getPath()));
     }
 

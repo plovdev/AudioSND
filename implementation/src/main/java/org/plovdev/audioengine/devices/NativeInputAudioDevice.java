@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.plovdev.audioengine.exceptions.devices.AudioDeviceException;
 import org.plovdev.audioengine.exceptions.devices.CloseAudioDeviceException;
 import org.plovdev.audioengine.exceptions.devices.OpenAudioDeviceException;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +17,8 @@ import static org.plovdev.audioengine.devices.AudioDeviceStatus.*;
 /**
  * Класс, который обеспечивает чтение с аудио устройства.
  *
- * @version 1.0
  * @author Anton
+ * @version 1.0
  */
 public final class NativeInputAudioDevice implements InputAudioDevice {
     private static final Logger log = LoggerFactory.getLogger(NativeInputAudioDevice.class);
@@ -32,6 +32,7 @@ public final class NativeInputAudioDevice implements InputAudioDevice {
 
     /**
      * Создает экземпляр для работы над аудио устройстовм
+     *
      * @param info устройство с которым будет работать класс.
      */
     public NativeInputAudioDevice(AudioDeviceInfo info) {
@@ -50,7 +51,7 @@ public final class NativeInputAudioDevice implements InputAudioDevice {
      * @throws OpenAudioDeviceException when opening failed.
      */
     @Override
-    public synchronized void open(TrackFormat format) throws OpenAudioDeviceException {
+    public synchronized void open(AudioFormat format) throws OpenAudioDeviceException {
         if (isInited.get()) {
             log.warn("Audio device {} already initialized.", info.id());
             return;
@@ -170,7 +171,7 @@ public final class NativeInputAudioDevice implements InputAudioDevice {
         return info.toString();
     }
 
-    private native long _open(TrackFormat format, AudioDeviceInfo info);
+    private native long _open(AudioFormat format, AudioDeviceInfo info);
 
     private native int _read(ByteBuffer buffer, long handle);
 

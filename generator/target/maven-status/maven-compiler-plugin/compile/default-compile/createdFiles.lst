@@ -1,6 +1,5 @@
 org/plovdev/audioengine/generator/strategies/envelope/ADSRStrategy.class
 org/plovdev/audioengine/generator/strategies/modulation/ModulationStrategy.class
-org/plovdev/audioengine/generator/TrackGenerator$1.class
 org/plovdev/audioengine/generator/strategies/envelope/EnvelopeStrategy.class
 org/plovdev/audioengine/generator/strategies/envelope/ExponentialEnvelope.class
 org/plovdev/audioengine/generator/strategies/modulation/LFOModulation.class

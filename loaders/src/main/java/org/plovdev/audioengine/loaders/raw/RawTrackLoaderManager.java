@@ -1,16 +1,15 @@
 package org.plovdev.audioengine.loaders.raw;
 
-import org.plovdev.audioengine.loaders.*;
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.loaders.*;
 
 import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.FLOAT32;
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.FLOAT64;
-import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.PCM32;
+import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.*;
 
 public class RawTrackLoaderManager implements TrackLoaderManager {
     private final RawTrackLoader loader;
@@ -44,16 +43,11 @@ public class RawTrackLoaderManager implements TrackLoaderManager {
 
     @Override
     public boolean isSupported(File file) {
-        if (file == null) return false;
-        String filename = file.getName();
-
-        String lower = filename.toLowerCase().trim();
-        lower = lower.startsWith(".") ? lower : "." + lower;
-        return lower.endsWith(".raw");
+        throw new UnsupportedOperationException("Cann't check supports in RAW");
     }
 
     @Override
-    public boolean isSupported(TrackFormat format) {
+    public boolean isSupported(@NonNull TrackFormat format) {
         TrackFormat.AudioCodec codec = format.audioCodec();
         return supportedCodecs.contains(codec);
     }
@@ -64,7 +58,7 @@ public class RawTrackLoaderManager implements TrackLoaderManager {
     }
 
     @Override
-    public boolean isSupported(URI uri) {
+    public boolean isSupported(@NonNull URI uri) {
         return isSupported(new File(uri.getPath()));
     }
 

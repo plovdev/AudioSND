@@ -20,7 +20,7 @@ public class FormatChunkWriter implements WavChunkWriter<TrackFormat> {
     }
 
     @Override
-    public void write(OutputStream outputStream, TrackFormat format) {
+    public void write(OutputStream outputStream, TrackFormat outputFormat, TrackFormat format) {
         try {
             int channels = format.channels();
             int sampleRate = format.sampleRate();

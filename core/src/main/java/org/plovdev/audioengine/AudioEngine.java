@@ -1,13 +1,13 @@
 package org.plovdev.audioengine;
 
 import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.TrackPlayer;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.engineconfig.AudioEngineConfig;
 import org.plovdev.audioengine.exceptions.AudioEngineException;
+import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.loaders.TrackLoaderManager;
 import org.plovdev.audioengine.mixer.TrackMixer;
-import org.plovdev.audioengine.api.TrackPlayer;
-import org.plovdev.audioengine.format.TrackFormat;
 
 import java.io.File;
 import java.io.InputStream;
@@ -23,12 +23,11 @@ import java.util.Optional;
  * Engine must be {@link #init(AudioEngineConfig)} before use and {@link #close()} after.
  * </p>
  *
+ * @author Anton
+ * @version 1.0
  * @see Track
  * @see TrackPlayer
  * @see TrackMixer
- *
- * @author Anton
- * @version 1.0
  */
 public interface AudioEngine extends AutoCloseable {
     /**
@@ -36,7 +35,7 @@ public interface AudioEngine extends AutoCloseable {
      *
      * @param config engine configuration
      * @throws IllegalStateException if already initialized
-     * @throws AudioEngineException if initialization fails
+     * @throws AudioEngineException  if initialization fails
      */
     void init(AudioEngineConfig config);
 
@@ -158,12 +157,11 @@ public interface AudioEngine extends AutoCloseable {
      * If track is in PCM format, an encoder may be used to compress it.
      * </p>
      *
-     * @param track track to export
+     * @param track        track to export
      * @param outputStream destination stream
-     * @throws org.plovdev.audioengine.exceptions.loaders.TrackExportException
-     *         if no suitable exporter found or export operation fails
+     * @throws org.plovdev.audioengine.exceptions.loaders.TrackExportException if no suitable exporter found or export operation fails
      */
-    void exportTrack(Track track, OutputStream outputStream);
+    void exportTrack(Track track, TrackFormat outputFormat, OutputStream outputStream);
 
     /**
      * Releases all native resources and shuts down the engine.

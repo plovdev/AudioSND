@@ -60,7 +60,7 @@ public class EffectsChain {
         copy.rewind();
 
         for (AudioEffect effect : effects) {
-            effect.process(copy);
+            effect.processInPlace(copy);
             copy.rewind();
         }
 

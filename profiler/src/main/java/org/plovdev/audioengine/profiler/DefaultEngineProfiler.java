@@ -1,6 +1,7 @@
 package org.plovdev.audioengine.profiler;
 
 import com.sun.management.OperatingSystemMXBean;
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.AudioEngine;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.profiler.benchmarking.ProfileProcessor;
@@ -43,7 +44,7 @@ public class DefaultEngineProfiler implements AudioEngineProfiler {
     }
 
     @Override
-    public long executionTime(Runnable r) {
+    public long executionTime(@NonNull Runnable r) {
         long startExec = System.nanoTime();
         r.run();
         return System.nanoTime() - startExec; // nano sec

@@ -1,5 +1,7 @@
 package org.plovdev.audioengine.loaders.wav.decoders;
 
+import org.jspecify.annotations.NonNull;
+import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.loaders.Decoder;
 
 import java.nio.ByteBuffer;
@@ -32,7 +34,7 @@ public class IMAADPCMDecoder implements Decoder {
     }
 
     // Декодирует один nibble
-    private short decodeNibble(int nibble, short[] state) {
+    private short decodeNibble(int nibble, short @NonNull [] state) {
         int step = STEP_TABLE[state[1]];
         int delta = step >> 3;
 
@@ -57,21 +59,18 @@ public class IMAADPCMDecoder implements Decoder {
     }
 
     @Override
-    public ByteBuffer decode(ByteBuffer input) {
+    public ByteBuffer decode(@NonNull ByteBuffer input) {
         input.rewind();
 
         if (input.remaining() < 4) {
             return ByteBuffer.allocate(0);
         }
 
-        // Вычисляем количество полных блоков
         int blockCount = input.remaining() / blockSize;
         if (blockCount == 0) {
             return ByteBuffer.allocate(0);
         }
 
-        // Количество сэмплов на блок:
-        // 1 сэмпл в заголовке + ((blockSize - 4) * 2) сэмплов в данных
         int samplesPerBlock = 1 + ((blockSize - 4) * 2);
         int totalSamples = blockCount * samplesPerBlock;
 
@@ -79,25 +78,21 @@ public class IMAADPCMDecoder implements Decoder {
                 .order(ByteOrder.LITTLE_ENDIAN);
 
         for (int block = 0; block < blockCount; block++) {
-            // Убедимся, что у нас достаточно данных для целого блока
             if (input.remaining() < blockSize) {
                 break;
             }
 
-            // Заголовок блока (4 байта)
             short firstSample = input.getShort();
             int initialStepIndex = input.get() & 0xFF;
             input.get(); // reserved byte
 
-            // Состояние для текущего блока: [предыдущий сэмпл, индекс шага]
             short[] state = new short[2];
-            state[0] = firstSample; // предыдущий сэмпл
-            state[1] = (short) Math.min(initialStepIndex, 88); // индекс шага
+            state[0] = firstSample;
+            state[1] = (short) Math.min(initialStepIndex, 88);
 
             // Сохраняем первый сэмпл
             result.putShort(firstSample);
 
-            // Декодируем остальные байты блока (blockSize - 4 байта)
             int bytesInBlockData = blockSize - 4;
             for (int i = 0; i < bytesInBlockData; i++) {
                 byte b = input.get();
@@ -111,6 +106,6 @@ public class IMAADPCMDecoder implements Decoder {
             }
         }
 
-        return result.flip();
+        return CoderUtils.decodeToFloat32(result.flip(), TrackFormat.AudioCodec.PCM16);
     }
 }

@@ -1,23 +1,24 @@
 package org.plovdev.audioengine.mixer;
 
-import org.plovdev.audioengine.exceptions.MixingException;
 import org.plovdev.audioengine.api.Track;
-import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.format.factories.WavTrackFormatFactory;
+import org.plovdev.audioengine.exceptions.MixingException;
+import org.plovdev.audioengine.format.AudioFormat;
+import org.plovdev.audioengine.format.AudioFormatFactory;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NativeTrackMixer implements TrackMixer {
-    private TrackFormat outputFormat = WavTrackFormatFactory.wav16bitStereo44kHz();
+    private AudioFormat outputFormat = AudioFormatFactory.stereo44100();
     private final List<Track> mixingTracks = new CopyOnWriteArrayList<>();
+
     /**
      * Setup output track format(after mixing)
      *
      * @param format output format
      */
     @Override
-    public void setOutputFormat(TrackFormat format) {
+    public void setOutputFormat(AudioFormat format) {
         outputFormat = format;
     }
 
@@ -25,7 +26,7 @@ public class NativeTrackMixer implements TrackMixer {
      * Get setuped output track format
      */
     @Override
-    public TrackFormat getOutputFormat() {
+    public AudioFormat getOutputFormat() {
         return outputFormat;
     }
 
@@ -78,5 +79,5 @@ public class NativeTrackMixer implements TrackMixer {
         return mixingTracks.isEmpty();
     }
 
-    private native Track _doMixing(List<Track> tracks, TrackFormat format);
+    private native Track _doMixing(List<Track> tracks, AudioFormat format);
 }

@@ -1,7 +1,8 @@
 package org.plovdev.audioengine.generator;
 
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.api.Track;
-import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.format.AudioFormat;
 import org.plovdev.audioengine.generator.config.GenerationConfig;
 import org.plovdev.audioengine.generator.strategies.envelope.EnvelopeStrategy;
 import org.plovdev.audioengine.generator.strategies.frequency.FrequencyStrategy;
@@ -21,14 +22,14 @@ import java.time.Duration;
  * Combines frequency, wave, and envelope strategies to generate audio samples.
  * </p>
  *
- * @version 1.0
  * @author Anton
+ * @version 1.0
  */
 public class TrackGenerator {
     private GenerationConfig config;
-    private TrackFormat trackFormat;
+    private final AudioFormat trackFormat;
 
-    public TrackGenerator(GenerationConfig config, TrackFormat format) {
+    public TrackGenerator(GenerationConfig config, AudioFormat format) {
         this.config = config;
         trackFormat = format;
     }
@@ -39,17 +40,14 @@ public class TrackGenerator {
      * @param duration track duration
      * @return generated Track
      */
-    public synchronized Track generate(Duration duration) {
+    public synchronized Track generate(@NonNull Duration duration) {
         int sampleRate = trackFormat.sampleRate();
-        int bitsPerSample = trackFormat.bitDepth();
-        int bytesPerSample = trackFormat.bytesPerSample();
         int channels = trackFormat.channels();
-        ByteOrder byteOrder = trackFormat.byteOrder();
         long totalSamples = duration.toMillis() * sampleRate / 1000;
-        int bufferSize = (int) (totalSamples * channels * bytesPerSample);
+        int bufferSize = (int) (totalSamples * channels * 4);
 
         ByteBuffer buffer = ByteBuffer.allocateDirect(bufferSize);
-        buffer.order(byteOrder);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
 
         FrequencyStrategy freqStrategy = config.getFrequencyStrategy();
         WaveStrategy waveStrategy = config.getWaveStrategy();
@@ -96,47 +94,12 @@ public class TrackGenerator {
 
             for (int channel = 0; channel < channels; channel++) {
                 float sample = AudioMath.clamp(channelSamples[channel], -1.0f, 1.0f);
-                writeSample(buffer, sample);
+                buffer.putFloat(sample);
             }
         }
 
+        buffer.rewind();
         return new Track(buffer, duration, trackFormat, new TrackMetadata());
-    }
-
-    private void writeSample(ByteBuffer buffer, float sample) {
-        TrackFormat.AudioCodec codec = trackFormat.audioCodec();
-
-        switch (codec) {
-            case PCM8:
-                buffer.put((byte) (sample * 128));
-                break;
-            case PCM16:
-                buffer.putShort((short) (sample * 32767.0));
-                break;
-            case PCM24:
-                int intSample24 = (int) (sample * 8388607);
-                if (trackFormat.byteOrder() == ByteOrder.LITTLE_ENDIAN) {
-                    buffer.put((byte) (intSample24 & 0xFF));
-                    buffer.put((byte) ((intSample24 >> 8) & 0xFF));
-                    buffer.put((byte) ((intSample24 >> 16) & 0xFF));
-                } else {
-                    buffer.put((byte) ((intSample24 >> 16) & 0xFF));
-                    buffer.put((byte) ((intSample24 >> 8) & 0xFF));
-                    buffer.put((byte) (intSample24 & 0xFF));
-                }
-                break;
-            case PCM32:
-                buffer.putLong((long) (sample * 2147483647));
-                break;
-            case FLOAT32:
-                buffer.putFloat(sample);
-                break;
-            case FLOAT64:
-                buffer.putDouble(sample * 2147483647);
-                break;
-            default:
-                throw new UnsupportedOperationException("Bits per sample: " + codec);
-        }
     }
 
     public GenerationConfig getConfig() {
@@ -147,11 +110,7 @@ public class TrackGenerator {
         this.config = config;
     }
 
-    public TrackFormat getTrackFormat() {
+    public AudioFormat getTrackFormat() {
         return trackFormat;
-    }
-
-    public synchronized void setTrackFormat(TrackFormat trackFormat) {
-        this.trackFormat = trackFormat;
     }
 }

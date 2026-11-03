@@ -1,5 +1,6 @@
 package org.plovdev.audioengine.utils;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +50,7 @@ public class NativeLibraryUnpacker {
         return Files.createTempFile(Path.of(unpackPath), "audiosnd_", name);
     }
 
-    private void configurateLib(Path path) {
+    private void configurateLib(@NonNull Path path) {
         File file = path.toFile();
         file.deleteOnExit();
         log.debug("Can executable: {}", file.setExecutable(true, true));
@@ -64,13 +65,13 @@ public class NativeLibraryUnpacker {
         }
     }
 
-    private String getLibName() {
+    private @NonNull String getLibName() {
         String osName = System.getProperty("os.name").trim().toLowerCase();
         log.debug("OS name: {}", osName);
         if (osName.contains("win")) {
             return toUnpack + ".dll";
         } else if (osName.contains("mac")) {
-            return toUnpack + ".dylib";
+            return "lib" + toUnpack + ".dylib";
         } else {
             return toUnpack + ".so";
         }

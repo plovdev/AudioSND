@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <memory>
 
+#include "../h/org_plovdev_audioengine_devices_NativeInputAudioDevice.h"
 // ================= GLOBALS =================
 
 struct AudioDeviceContext {
@@ -52,45 +53,18 @@ static AudioStreamBasicDescription javaToASBD(JNIEnv* env, jobject fmt) {
 
     int sr = getInt("sampleRate");
     int ch = getInt("channels");
-    int bits = getInt("bitDepth");
-
-    jfieldID codecField = env->GetFieldID(
-        cls,
-        "audioCodec",
-        "Lorg/plovdev/audioengine/format/TrackFormat$AudioCodec;"
-    );
-
-    jobject codec = env->GetObjectField(fmt, codecField);
-
-    jclass enumCls = env->GetObjectClass(codec);
-    jmethodID nameMethod = env->GetMethodID(
-        enumCls, "name", "()Ljava/lang/String;"
-    );
-
-    auto codecName = (jstring) env->CallObjectMethod(codec, nameMethod);
-    const char* codecStr = env->GetStringUTFChars(codecName, nullptr);
-
-    bool isFloat = strcmp(codecStr, "FLOAT32") == 0 || strcmp(codecStr, "FLOAT64") == 0;
-
-    env->ReleaseStringUTFChars(codecName, codecStr);
 
     asbd.mSampleRate = sr;
     asbd.mFormatID = kAudioFormatLinearPCM;
+    asbd.mFormatFlags |= kAudioFormatFlagIsFloat;
     asbd.mChannelsPerFrame = ch;
-    asbd.mBitsPerChannel = bits;
+    asbd.mBitsPerChannel = 32;
     asbd.mFramesPerPacket = 1;
+    asbd.mFormatFlags = static_cast<UInt32>(kAudioFormatFlagIsPacked) |
+        static_cast<UInt32>(kAudioFormatFlagsNativeEndian) |
+        static_cast<UInt32>(kAudioFormatFlagIsFloat);
 
-    asbd.mFormatFlags =
-        kAudioFormatFlagIsPacked |
-        kAudioFormatFlagsNativeEndian;
-
-    if (isFloat) {
-        asbd.mFormatFlags |= kAudioFormatFlagIsFloat;
-    } else {
-        asbd.mFormatFlags |= kAudioFormatFlagIsSignedInteger;
-    }
-
-    asbd.mBytesPerFrame = (bits / 8) * ch;
+    asbd.mBytesPerFrame = 4 * ch;
     asbd.mBytesPerPacket = asbd.mBytesPerFrame;
 
     return asbd;

@@ -1,13 +1,13 @@
 package org.plovdev.audioengine.api;
 
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.devices.AudioDeviceStatus;
 import org.plovdev.audioengine.devices.NativeOutputAudioDevice;
 import org.plovdev.audioengine.effects.GainEffect;
 import org.plovdev.audioengine.exceptions.devices.OpenAudioDeviceException;
-import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.format.TrackFormatUtils;
+import org.plovdev.audioengine.format.AudioFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +48,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * @see AudioRecorder
  */
 public class NativeTrackPlayer implements TrackPlayer {
-    private static final int CHUNK_DURATION_MS = 5;
     private static final Logger log = LoggerFactory.getLogger(NativeTrackPlayer.class);
+    private static final int BYTES_PER_SAMPLE = Float.BYTES;
     private final ExecutorService eventExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
     private float volume = 1f;
@@ -63,9 +63,10 @@ public class NativeTrackPlayer implements TrackPlayer {
 
     private final AtomicReference<AudioStatus> status = new AtomicReference<>(AudioStatus.UNAVAILABLE);
     private final Track track;
+    private final AudioFormat audioFormat;
     private final ByteBuffer data;
 
-    private final int chunkSize;
+    private int chunkSize = 1024;
     private int currentCycle = 0;
 
     private Runnable onStatusChanged = () -> {
@@ -94,14 +95,13 @@ public class NativeTrackPlayer implements TrackPlayer {
         Objects.requireNonNull(info);
 
         this.track = track;
-        this.gainEffect = new GainEffect(track.getFormat(), volume);
+        this.audioFormat = track.getFormat();
+        this.gainEffect = new GainEffect(volume);
         audioDeviceReference = new AtomicReference<>(new NativeOutputAudioDevice(info));
         data = ByteBuffer.allocateDirect(track.getTrackData().capacity());
         data.put(track.getTrackData());
 
         init();
-        chunkSize = (TrackFormatUtils.calculateFrameSize(track.getFormat()) * CHUNK_DURATION_MS);
-
         log.debug("Native track player inited success");
     }
 
@@ -158,10 +158,12 @@ public class NativeTrackPlayer implements TrackPlayer {
      * @throws IllegalStateException if player is not initialized
      */
     @Override
-    public void seek(Duration position) {
+    public void seek(@NonNull Duration position) {
         checkIfInited();
 
-        long toPosition = position.toMillis() * (chunkSize / CHUNK_DURATION_MS);
+        long frames = (long) (position.toNanos() / 1_000_000_000.0 * audioFormat.sampleRate());
+        long toPosition = frames * audioFormat.channels() * BYTES_PER_SAMPLE;
+
         long limit = data.limit();
         if (toPosition >= limit) {
             toPosition = limit;
@@ -264,7 +266,7 @@ public class NativeTrackPlayer implements TrackPlayer {
      * @return current format.
      */
     @Override
-    public TrackFormat getCurrentFormat() {
+    public AudioFormat getCurrentFormat() {
         return track.getFormat();
     }
 
@@ -284,7 +286,9 @@ public class NativeTrackPlayer implements TrackPlayer {
      */
     @Override
     public synchronized Duration getCurrentTime() {
-        return Duration.ofMillis(position.get() / (chunkSize / CHUNK_DURATION_MS));
+        long frames = position.get() / ((long) audioFormat.channels() * BYTES_PER_SAMPLE);
+        double seconds = (double) frames * audioFormat.sampleRate();
+        return Duration.ofNanos((long) (seconds * 1_000_000_000L));
     }
 
     /**
@@ -444,7 +448,7 @@ public class NativeTrackPlayer implements TrackPlayer {
      */
     @NotNull
     private void processChunk(ByteBuffer chunk) {
-        gainEffect.process(chunk);
+        gainEffect.processInPlace(chunk);
     }
 
     /**
@@ -461,6 +465,10 @@ public class NativeTrackPlayer implements TrackPlayer {
                 log.error("Error in status change callback", e);
             }
         }
+    }
+
+    public void setChunkSize(int newSize) {
+        this.chunkSize = newSize;
     }
 
     /**

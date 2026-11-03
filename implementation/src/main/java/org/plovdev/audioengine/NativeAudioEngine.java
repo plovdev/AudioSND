@@ -1,21 +1,22 @@
 package org.plovdev.audioengine;
 
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.plovdev.audioengine.api.NativeTrackPlayer;
 import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.TrackPlayer;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.devices.AudioDeviceManager;
+import org.plovdev.audioengine.engineconfig.AudioEngineConfig;
 import org.plovdev.audioengine.exceptions.AudioEngineException;
 import org.plovdev.audioengine.exceptions.loaders.TrackExportException;
 import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
+import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.loaders.TrackExporter;
 import org.plovdev.audioengine.loaders.TrackLoader;
 import org.plovdev.audioengine.loaders.TrackLoaderManager;
 import org.plovdev.audioengine.mixer.NativeTrackMixer;
 import org.plovdev.audioengine.mixer.TrackMixer;
-import org.plovdev.audioengine.api.NativeTrackPlayer;
-import org.plovdev.audioengine.api.TrackPlayer;
-import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.engineconfig.AudioEngineConfig;
 import org.plovdev.audioengine.utils.NativeLibraryUnpacker;
 import org.plovdev.audioengine.utils.TrackLoaderSearcher;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Main entry point for AudioSND.
@@ -36,20 +38,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Engine must be {@link #init(AudioEngineConfig)} before use and {@link #close()} after.
  * </p>
  *
+ * @author Anton
+ * @version 1.0
  * @see Track
  * @see TrackPlayer
  * @see TrackMixer
- *
- * @author Anton
- * @version 1.0
  */
 public class NativeAudioEngine implements AudioEngine {
     private static final Logger log = LoggerFactory.getLogger(NativeAudioEngine.class);
     private static final Logger infoLogger = LoggerFactory.getLogger("InfoLogger");
+    private static final AtomicBoolean IS_NATIVE_LOADED = new AtomicBoolean(false);
 
     private final List<TrackLoaderManager> loaderManagers = new CopyOnWriteArrayList<>();
     private AudioEngineConfig config = AudioEngineConfig.load();
-    private volatile boolean isInited = false;
+    private final AtomicBoolean isInited = new AtomicBoolean(false);
 
     public NativeAudioEngine() {
         try {
@@ -77,14 +79,14 @@ public class NativeAudioEngine implements AudioEngine {
      */
     @Override
     public synchronized void init(@NotNull AudioEngineConfig config) throws AudioEngineException {
-        if (!isInited) {
+        if (!isInited.get()) {
             try {
                 this.config = config;
                 printEngineInfo(config);
 
                 initNative();
                 TrackLoaderSearcher.searchAvailableTrackLoaderManagers().forEach(this::addLoaderManager);
-                isInited = true;
+                isInited.set(true);
             } catch (Exception e) {
                 throw new AudioEngineException("Cann't init AudioSND: " + e.getMessage());
             }
@@ -110,7 +112,7 @@ public class NativeAudioEngine implements AudioEngine {
      */
     @Override
     public boolean isInitialized() {
-        return isInited;
+        return isInited.get();
     }
 
     /**
@@ -216,16 +218,16 @@ public class NativeAudioEngine implements AudioEngine {
 
     @Override
     public synchronized void close() {
-        if (!isInited) {
+        if (!isInited.get()) {
             return;
         }
         loaderManagers.clear();
-        isInited = false;
         _cleanup();
+        isInited.set(false);
     }
 
     private void checkIfInited() {
-        if (!isInited) {
+        if (!isInited.get()) {
             throw new AudioEngineException("AudioSND hasn't been inited!");
         }
     }
@@ -241,28 +243,26 @@ public class NativeAudioEngine implements AudioEngine {
     }
 
     @Override
-    public void exportTrack(Track track, OutputStream outputStream) {
-        Optional<TrackLoaderManager> exporterOptional = findLoaderFor(track.getFormat());
+    public void exportTrack(@NonNull Track track, TrackFormat outputFromat, OutputStream outputStream) {
+        Optional<TrackLoaderManager> exporterOptional = findLoaderFor(outputFromat);
 
         if (exporterOptional.isPresent()) {
             TrackLoaderManager trackLoaderManager = exporterOptional.get();
             TrackExporter exporter = trackLoaderManager.getTrackExporter();
-            exporter.save(track, outputStream);
+            exporter.save(track, outputFromat, outputStream);
         } else {
             throw new TrackExportException("Cann't find situable exporter");
         }
     }
 
-    private void initNative() {
-        try {
-            NativeLibraryUnpacker unpacker = new NativeLibraryUnpacker(config.getNativeLib());
-            System.load(unpacker.unpackLib());
-            _init();
-            AudioDeviceManager.getInstance();
-        } catch (Throwable e) {
-            if (config.isIgnoreNativeWhenFail()) {
-                log.warn("Unable to init native part: {}", e.getMessage());
-            } else {
+    private synchronized void initNative() {
+        if (!IS_NATIVE_LOADED.get()) {
+            try {
+                NativeLibraryUnpacker unpacker = new NativeLibraryUnpacker(config.getNativeLib());
+                System.load(unpacker.unpackLib());
+                _init();
+                IS_NATIVE_LOADED.set(true);
+            } catch (Throwable e) {
                 throw new AudioEngineException(e);
             }
         }

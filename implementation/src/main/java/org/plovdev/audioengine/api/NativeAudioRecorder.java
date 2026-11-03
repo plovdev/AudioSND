@@ -1,12 +1,14 @@
 package org.plovdev.audioengine.api;
 
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.devices.NativeInputAudioDevice;
 import org.plovdev.audioengine.effects.GainEffect;
 import org.plovdev.audioengine.exceptions.devices.OpenAudioDeviceException;
-import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.format.TrackFormatUtils;
+import org.plovdev.audioengine.format.AudioFormat;
+import org.plovdev.audioengine.format.AudioFormatUtils;
 import org.plovdev.audioengine.metadata.TrackMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,24 +51,26 @@ public class NativeAudioRecorder implements AudioRecorder {
     private final GainEffect gainEffect;
 
     private final NativeInputAudioDevice audioDevice;
-    private final TrackFormat trackFormat;
+    private final AudioFormat audioFormat;
 
-    private Runnable onStatusChanged = () -> {};
-    private Runnable onChunkRecorded = () -> {};
+    private Runnable onStatusChanged = () -> {
+    };
+    private Runnable onChunkRecorded = () -> {
+    };
 
     /**
      * Creates a new native audio recorder.
      *
      * @param format desired recording format (sample rate, channels, etc.)
      * @param info   input device to use
-     * @throws NullPointerException if format or info is null
+     * @throws NullPointerException     if format or info is null
      * @throws OpenAudioDeviceException if device cannot be opened
      */
-    public NativeAudioRecorder(TrackFormat format, AudioDeviceInfo info) {
+    public NativeAudioRecorder(AudioFormat format, AudioDeviceInfo info) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(info);
-        this.trackFormat = format;
-        this.gainEffect = new GainEffect(format, gain);
+        this.audioFormat = format;
+        this.gainEffect = new GainEffect(gain);
         audioDevice = new NativeInputAudioDevice(info);
 
         init();
@@ -83,7 +87,7 @@ public class NativeAudioRecorder implements AudioRecorder {
     public synchronized void init() {
         if (!isInited.get()) {
             try {
-                audioDevice.open(trackFormat);
+                audioDevice.open(audioFormat);
                 isInited.set(true);
                 setStatus(AudioStatus.INITED);
             } catch (OpenAudioDeviceException e) {
@@ -205,7 +209,7 @@ public class NativeAudioRecorder implements AudioRecorder {
      */
     @NotNull
     private void processChunk(ByteBuffer chunk) {
-        gainEffect.process(chunk);
+        gainEffect.processInPlace(chunk);
     }
 
     /**
@@ -228,8 +232,8 @@ public class NativeAudioRecorder implements AudioRecorder {
      * Returns current recording format.
      */
     @Override
-    public TrackFormat getCurrentFormat() {
-        return trackFormat;
+    public AudioFormat getCurrentFormat() {
+        return audioFormat;
     }
 
     /**
@@ -318,15 +322,16 @@ public class NativeAudioRecorder implements AudioRecorder {
      *
      * @return combined track with all recorded audio
      */
-    private Track buildTrack() {
+    @Contract(" -> new")
+    private @NonNull Track buildTrack() {
         ByteBuffer totalBytes = ByteBuffer.allocateDirect(recordedLength.get() + chunkSize);
         for (ByteBuffer buffer : recordedData) {
             totalBytes.put(buffer);
         }
         totalBytes.flip();
 
-        long durationMs = TrackFormatUtils.calculateDurationMs(trackFormat, recordedLength.get());
-        return new Track(totalBytes, Duration.ofMillis(durationMs), trackFormat, new TrackMetadata());
+        long durationMs = AudioFormatUtils.calculateTrackDuration(audioFormat, recordedLength.get());
+        return new Track(totalBytes, Duration.ofMillis(durationMs), audioFormat, new TrackMetadata());
     }
 
     /**
