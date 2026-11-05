@@ -1,7 +1,7 @@
 package org.plovdev.audioengine.generator;
 
 import org.jspecify.annotations.NonNull;
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.format.AudioFormat;
 import org.plovdev.audioengine.generator.config.GenerationConfig;
 import org.plovdev.audioengine.generator.note.Note;

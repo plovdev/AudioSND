@@ -1,7 +1,7 @@
 package org.plovdev.audioengine.loaders.wav.write.writers;
 
 import org.plovdev.audioengine.exceptions.loaders.TrackExportException;
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.format.TrackFormat;
 
 import java.io.OutputStream;

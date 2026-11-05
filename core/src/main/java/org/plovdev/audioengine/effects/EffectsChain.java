@@ -1,6 +1,6 @@
 package org.plovdev.audioengine.effects;
 
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.format.AudioFormat;
 
 import java.nio.ByteBuffer;
@@ -43,27 +43,28 @@ public class EffectsChain {
      * @throws IllegalArgumentException if source is null
      */
     public Track apply(Track source) {
-        if (source == null) {
-            throw new IllegalArgumentException("Source track cannot be null");
-        }
-        if (effects.isEmpty()) {
-            return source;
-        }
-
-        AudioFormat format = source.getFormat();
-
-        ByteBuffer original = source.getTrackData();
-        original.rewind();
-        ByteBuffer copy = ByteBuffer.allocateDirect(original.capacity());
-        copy.order(ByteOrder.LITTLE_ENDIAN);
-        copy.put(original);
-        copy.rewind();
-
-        for (AudioEffect effect : effects) {
-            effect.processInPlace(copy);
-            copy.rewind();
-        }
-
-        return new Track(copy, source.getDuration(), format, source.getMetaData());
+//        if (source == null) {
+//            throw new IllegalArgumentException("Source track cannot be null");
+//        }
+//        if (effects.isEmpty()) {
+//            return source;
+//        }
+//
+//        AudioFormat format = source.getFormat();
+//
+//        ByteBuffer original = source.getTrackData();
+//        original.rewind();
+//        ByteBuffer copy = ByteBuffer.allocateDirect(original.capacity());
+//        copy.order(ByteOrder.LITTLE_ENDIAN);
+//        copy.put(original);
+//        copy.rewind();
+//
+//        for (AudioEffect effect : effects) {
+//            effect.processInPlace(copy);
+//            copy.rewind();
+//        }
+//
+//        return new Track(copy, source.getDuration(), format, source.getMetaData());
+        return null;
     }
 }

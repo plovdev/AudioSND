@@ -3,7 +3,7 @@ package org.plovdev.audioengine;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.api.NativeTrackPlayer;
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.api.TrackPlayer;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.devices.AudioDeviceManager;

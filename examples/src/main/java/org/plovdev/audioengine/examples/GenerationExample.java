@@ -2,7 +2,7 @@ package org.plovdev.audioengine.examples;
 
 import org.plovdev.audioengine.AudioEngine;
 import org.plovdev.audioengine.NativeAudioEngine;
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.api.TrackPlayer;
 import org.plovdev.audioengine.format.AudioFormat;
 import org.plovdev.audioengine.format.AudioFormatFactory;

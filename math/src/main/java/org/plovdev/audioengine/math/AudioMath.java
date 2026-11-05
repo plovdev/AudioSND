@@ -7,7 +7,6 @@ package org.plovdev.audioengine.math;
  * @version 1.0
  */
 public class AudioMath {
-
     private AudioMath() {
         throw new UnsupportedOperationException("Utility class - do not instantiate!");
     }

@@ -1,23 +1,22 @@
 package org.plovdev.audioengine.api;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
-import org.jspecify.annotations.NonNull;
+import org.plovdev.audioengine.api.source.AudioProducer;
+import org.plovdev.audioengine.api.source.AudioSource;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.devices.NativeInputAudioDevice;
 import org.plovdev.audioengine.effects.GainEffect;
 import org.plovdev.audioengine.exceptions.devices.OpenAudioDeviceException;
 import org.plovdev.audioengine.format.AudioFormat;
-import org.plovdev.audioengine.format.AudioFormatUtils;
 import org.plovdev.audioengine.metadata.TrackMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.time.Duration;
+import java.util.Deque;
 import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,15 +39,53 @@ public class NativeAudioRecorder implements AudioRecorder {
     private static final Logger log = LoggerFactory.getLogger(NativeAudioRecorder.class);
     private final ExecutorService eventExecutor = Executors.newVirtualThreadPerTaskExecutor();
 
-    private final int chunkSize = 2048;
+    private final AtomicInteger chunkSize = new AtomicInteger(2048);
     private volatile float gain = 1f;
 
     private final AtomicBoolean isInited = new AtomicBoolean(false);
     private final AtomicBoolean isRecording = new AtomicBoolean(false);
-    private final AtomicInteger recordedLength = new AtomicInteger(0);
-    private final Queue<ByteBuffer> recordedData = new ConcurrentLinkedQueue<>();
     private final AtomicReference<AudioStatus> status = new AtomicReference<>(AudioStatus.UNAVAILABLE);
     private final GainEffect gainEffect;
+
+    private final AudioProducer recorderProducer = new AudioProducer() {
+        @Override
+        public void setChunkSize(int size) {
+            chunkSize.set(size);
+        }
+
+        @Override
+        public int loadNextChunk(Deque<ByteBuffer> queueToLoad) {
+            if (isInited.get()) {
+                if (isRecording.get()) {
+                    ByteBuffer chunk = ByteBuffer.allocateDirect(getChunkSize());
+                    int bytesRead = audioDevice.read(chunk);
+
+                    if (bytesRead > 0) {
+                        processChunk(chunk);
+                        queueToLoad.offer(chunk);
+                        return bytesRead;
+                    }
+                }
+            }
+
+            return getChunkSize();
+        }
+
+        @Override
+        public void awaitChunkLoaded() {
+            // NO-OP
+        }
+
+        @Override
+        public void setPointer(long position) {
+            throw new UnsupportedOperationException("Unable set pointer");
+        }
+
+        @Override
+        public long limit() {
+            return -1; // infinity
+        }
+    };
 
     private final NativeInputAudioDevice audioDevice;
     private final AudioFormat audioFormat;
@@ -104,20 +141,16 @@ public class NativeAudioRecorder implements AudioRecorder {
      * @throws IllegalStateException if not initialized
      */
     @Override
-    public synchronized void start() {
+    public synchronized Track start() {
         checkIfInited();
 
         if (isRecording.get()) {
-            return;
+            throw new IllegalStateException("Audio already recording");
         }
 
         isRecording.set(true);
         setStatus(AudioStatus.RUNNING);
-
-        Thread audioLoopThread = new Thread(this::recordLoop, "record-loop");
-        audioLoopThread.setPriority(Thread.MAX_PRIORITY);
-        audioLoopThread.setDaemon(true);
-        audioLoopThread.start();
+        return new Track(new AudioSource(recorderProducer), Duration.ofMillis(-1), audioFormat, TrackMetadata.DEFAULT_METADATA);
     }
 
     /**
@@ -133,37 +166,14 @@ public class NativeAudioRecorder implements AudioRecorder {
         setStatus(AudioStatus.PAUSED);
     }
 
-    /**
-     * Stops recording and returns captured audio as Track.
-     * Internal buffers are cleared after track creation.
-     *
-     * @return recorded audio track
-     * @throws IllegalStateException if not initialized
-     */
+
     @Override
-    public synchronized Track stop() {
+    public synchronized void stop() {
         checkIfInited();
 
         isRecording.set(false);
-        Track track = buildTrack();
-        recordedData.clear();
-        recordedLength.set(0);
+        //TODO: clear source
         setStatus(AudioStatus.STOPPED);
-        return track;
-    }
-
-    /**
-     * Returns currently recorded track without stopping.
-     * Useful for real-time monitoring or partial saves.
-     *
-     * @return track with recorded audio so far
-     * @throws IllegalStateException if not initialized
-     */
-    @Override
-    @NotNull
-    public synchronized Track getCurrentTrack() {
-        checkIfInited();
-        return buildTrack();
     }
 
     /**
@@ -176,30 +186,6 @@ public class NativeAudioRecorder implements AudioRecorder {
     public synchronized void setGain(float gain) {
         this.gain = Math.clamp(gain, -10, 10);
         gainEffect.setGain(this.gain);
-    }
-
-    /**
-     * Main recording loop - runs in dedicated thread.
-     * Reads chunks from device, applies gain, and stores in queue.
-     */
-    private void recordLoop() {
-        checkIfInited();
-
-        while (isRecording.get()) {
-            ByteBuffer chunk = ByteBuffer.allocateDirect(chunkSize);
-            int bytesRead = audioDevice.read(chunk);
-
-            if (bytesRead > 0) {
-                processChunk(chunk);
-                recordedData.offer(chunk);
-                recordedLength.addAndGet(bytesRead);
-
-                eventExecutor.execute(onChunkRecorded);
-            }
-        }
-
-        log.debug("Recording stopped");
-        setStatus(AudioStatus.STOPPED);
     }
 
     /**
@@ -267,7 +253,7 @@ public class NativeAudioRecorder implements AudioRecorder {
      * Returns chunk size in bytes.
      */
     public int getChunkSize() {
-        return chunkSize;
+        return chunkSize.get();
     }
 
     /**
@@ -318,31 +304,12 @@ public class NativeAudioRecorder implements AudioRecorder {
     }
 
     /**
-     * Builds Track from all recorded chunks.
-     *
-     * @return combined track with all recorded audio
-     */
-    @Contract(" -> new")
-    private @NonNull Track buildTrack() {
-        ByteBuffer totalBytes = ByteBuffer.allocateDirect(recordedLength.get() + chunkSize);
-        for (ByteBuffer buffer : recordedData) {
-            totalBytes.put(buffer);
-        }
-        totalBytes.flip();
-
-        long durationMs = AudioFormatUtils.calculateTrackDuration(audioFormat, recordedLength.get());
-        return new Track(totalBytes, Duration.ofMillis(durationMs), audioFormat, new TrackMetadata());
-    }
-
-    /**
      * Releases all resources and stops recording.
      */
     @Override
     public void close() {
         if (isInited.get()) {
             isRecording.set(false);
-            recordedData.clear();
-            recordedLength.set(0);
             audioDevice.close();
             isInited.set(false);
             setStatus(AudioStatus.UNAVAILABLE);

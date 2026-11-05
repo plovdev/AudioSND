@@ -2,8 +2,9 @@ package org.plovdev.audioengine.examples;
 
 import org.plovdev.audioengine.AudioEngine;
 import org.plovdev.audioengine.NativeAudioEngine;
+import org.plovdev.audioengine.api.source.Track;
+import org.plovdev.audioengine.mixer.NativeTrackMixer;
 import org.plovdev.audioengine.mixer.TrackMixer;
-import org.plovdev.audioengine.api.Track;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +18,7 @@ public class MixerExample {
             Track track1 = engine.loadTrack(new File("testdata/wav/48000/16/White Night.wav"));
             Track track2 = engine.loadTrack(new File("testdata/Cotton Eye joe.wav"));
 
-            TrackMixer mixer = engine.createTrackMixer();
+            TrackMixer mixer = new NativeTrackMixer();
             mixer.setOutputFormat(track2.getFormat());
             mixer.addTrack(track1);
             mixer.addTrack(track2);

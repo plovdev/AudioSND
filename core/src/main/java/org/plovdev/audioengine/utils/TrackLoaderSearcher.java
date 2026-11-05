@@ -1,5 +1,7 @@
 package org.plovdev.audioengine.utils;
 
+import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.loaders.TrackLoaderManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,7 @@ public class TrackLoaderSearcher {
      * Discovers all TrackLoaderManager implementations using ServiceLoader.
      * Returns empty list if no implementations found.
      */
-    public static List<TrackLoaderManager> searchAvailableTrackLoaderManagers() {
+    public static @NonNull @Unmodifiable List<TrackLoaderManager> searchAvailableTrackLoaderManagers() {
         List<TrackLoaderManager> loaders = new ArrayList<>();
         try {
             ServiceLoader<TrackLoaderManager> serviceLoader = ServiceLoader.load(TrackLoaderManager.class);

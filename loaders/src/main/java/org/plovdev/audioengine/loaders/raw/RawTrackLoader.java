@@ -1,7 +1,7 @@
 package org.plovdev.audioengine.loaders.raw;
 
 import org.jspecify.annotations.NonNull;
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
 import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.loaders.*;

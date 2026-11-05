@@ -2,7 +2,7 @@ package org.plovdev.audioengine.loaders;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.metadata.TrackMetadata;
 
@@ -25,7 +25,6 @@ import java.net.URI;
  * @since 1.0
  */
 public interface TrackLoader {
-
     /**
      * Loads audio track from a file.
      *

@@ -1,6 +1,6 @@
 package org.plovdev.audioengine.mixer;
 
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.exceptions.MixingException;
 import org.plovdev.audioengine.format.AudioFormat;
 
@@ -22,7 +22,6 @@ public interface TrackMixer {
      * Get configured output track format
      */
     AudioFormat getOutputFormat();
-
 
     /**
      * Adds a track to the mixing list
@@ -62,7 +61,6 @@ public interface TrackMixer {
      * @throws MixingException if mixing failed
      */
     Track doMixing();
-
 
     boolean isEmpty();
 

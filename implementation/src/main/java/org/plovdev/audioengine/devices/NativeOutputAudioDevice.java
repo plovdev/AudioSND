@@ -8,7 +8,6 @@ import org.plovdev.audioengine.format.AudioFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -89,27 +88,6 @@ public final class NativeOutputAudioDevice implements OutputAudioDevice {
         try {
             status = RUNNING;
             return _write(byteBuffer, nativeHandle);
-        } finally {
-            status = OPENED;
-        }
-    }
-
-    /**
-     * Writes audio data directly from a memory segment.
-     * Zero-copy path for memory-mapped files and off-heap buffers.
-     *
-     * @param segment memory segment containing audio data
-     * @param start   starting offset in bytes
-     * @param length  number of bytes to write
-     * @return number of bytes actually written
-     * @throws IllegalStateException if device is not opened
-     */
-    @Override
-    public synchronized int write(@NotNull MemorySegment segment, long start, long length) {
-        checkDevice();
-        try {
-            status = RUNNING;
-            return _write(segment.address(), start, length, nativeHandle);
         } finally {
             status = OPENED;
         }

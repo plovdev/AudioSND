@@ -2,18 +2,16 @@ package org.plovdev.audioengine.devices;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.foreign.MemorySegment;
 import java.nio.ByteBuffer;
 
 /**
  * Base interface for audio output devices (speakers, headphones).
  * Provides methods for writing audio data to the device.
  *
+ * @author Anton
+ * @version 1.0
  * @see AudioDevice
  * @see InputAudioDevice
- *
- * @version 1.0
- * @author Anton
  */
 public interface OutputAudioDevice extends AudioDevice {
 
@@ -27,16 +25,4 @@ public interface OutputAudioDevice extends AudioDevice {
      * @throws IllegalStateException if device is not opened
      */
     int write(@NotNull ByteBuffer byteBuffer);
-
-    /**
-     * Writes audio data directly from a memory segment.
-     * Zero-copy path for memory-mapped files and off-heap buffers.
-     *
-     * @param segment memory segment containing audio data
-     * @param start   starting offset in bytes
-     * @param length  number of bytes to write
-     * @return number of bytes actually written
-     * @throws IllegalStateException if device is not opened
-     */
-    int write(@NotNull MemorySegment segment, long start, long length);
 }

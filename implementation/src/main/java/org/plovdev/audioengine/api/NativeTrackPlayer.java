@@ -2,6 +2,8 @@ package org.plovdev.audioengine.api;
 
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
+import org.plovdev.audioengine.api.source.AudioSource;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.devices.AudioDeviceStatus;
 import org.plovdev.audioengine.devices.NativeOutputAudioDevice;
@@ -64,7 +66,8 @@ public class NativeTrackPlayer implements TrackPlayer {
     private final AtomicReference<AudioStatus> status = new AtomicReference<>(AudioStatus.UNAVAILABLE);
     private final Track track;
     private final AudioFormat audioFormat;
-    private final ByteBuffer data;
+    private final AudioSource audioSource;
+    private final long limit;
 
     private int chunkSize = 1024;
     private int currentCycle = 0;
@@ -98,8 +101,8 @@ public class NativeTrackPlayer implements TrackPlayer {
         this.audioFormat = track.getFormat();
         this.gainEffect = new GainEffect(volume);
         audioDeviceReference = new AtomicReference<>(new NativeOutputAudioDevice(info));
-        data = ByteBuffer.allocateDirect(track.getTrackData().capacity());
-        data.put(track.getTrackData());
+        audioSource = track.getAudioSource();
+        this.limit = audioSource.getLimit();
 
         init();
         log.debug("Native track player inited success");
@@ -164,7 +167,6 @@ public class NativeTrackPlayer implements TrackPlayer {
         long frames = (long) (position.toNanos() / 1_000_000_000.0 * audioFormat.sampleRate());
         long toPosition = frames * audioFormat.channels() * BYTES_PER_SAMPLE;
 
-        long limit = data.limit();
         if (toPosition >= limit) {
             toPosition = limit;
         }
@@ -352,10 +354,9 @@ public class NativeTrackPlayer implements TrackPlayer {
     private void audioLoop() {
         checkIfInited();
         if (totalCycles == 0) return;
-        long limit = data.limit();
 
         NativeOutputAudioDevice audioDevice = audioDeviceReference.get();
-        while (isPlaying.get()) {
+        while (isPlaying.get() && !audioSource.isFinished()) {
             int start = (int) position.get();
             int rem = (int) (limit - start);
 
@@ -373,11 +374,11 @@ public class NativeTrackPlayer implements TrackPlayer {
                 }
             }
 
-            ByteBuffer chunk = data.slice(start, Math.min(chunkSize, rem));
+            ByteBuffer chunk = audioSource.nextChunk();
             processChunk(chunk);
             audioDevice.write(chunk);
 
-            position.set(Math.min(start + chunkSize, limit));
+            position.set(start + chunkSize);
             eventExecutor.execute(onChunkPlayed);
         }
 

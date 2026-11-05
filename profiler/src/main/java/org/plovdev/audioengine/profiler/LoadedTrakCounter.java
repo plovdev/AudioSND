@@ -34,6 +34,6 @@ public class LoadedTrakCounter {
     }
     @Contract(pure = true)
     private static boolean filterLine(@NonNull String line) {
-        return line.contains("org.plovdev.audioengine.api.Track");
+        return line.contains("org.plovdev.audioengine.api.source.Track");
     }
 }

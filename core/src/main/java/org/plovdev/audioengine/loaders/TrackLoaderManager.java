@@ -1,7 +1,7 @@
 package org.plovdev.audioengine.loaders;
 
 import org.jetbrains.annotations.NotNull;
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.format.TrackFormat;
 
 import java.io.File;
@@ -24,7 +24,6 @@ import java.net.URI;
  * @version 1.0
  * @see Track
  * @see TrackFormat
- * @see PathLocator
  * @since 1.0
  */
 public interface TrackLoaderManager {
@@ -70,6 +69,4 @@ public interface TrackLoaderManager {
      * @return true if URI protocol and format are supported
      */
     boolean isSupported(@NotNull URI uri);
-
-    void registerPathLocator(@NotNull PathLocator locator);
 }

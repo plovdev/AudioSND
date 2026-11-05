@@ -3,7 +3,7 @@ package org.plovdev.audioengine.examples;
 import org.plovdev.audioengine.AudioEngine;
 import org.plovdev.audioengine.NativeAudioEngine;
 import org.plovdev.audioengine.api.NativeAudioRecorder;
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.devices.AudioDeviceManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,6 @@
 package org.plovdev.audioengine.loaders;
 
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.jetbrains.annotations.NotNull;
 import org.plovdev.audioengine.format.TrackFormat;
 

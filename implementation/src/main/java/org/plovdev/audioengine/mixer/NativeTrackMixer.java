@@ -1,6 +1,6 @@
 package org.plovdev.audioengine.mixer;
 
-import org.plovdev.audioengine.api.Track;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.exceptions.MixingException;
 import org.plovdev.audioengine.format.AudioFormat;
 import org.plovdev.audioengine.format.AudioFormatFactory;

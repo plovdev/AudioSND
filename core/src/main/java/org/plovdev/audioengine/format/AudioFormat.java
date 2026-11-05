@@ -29,4 +29,12 @@ public record AudioFormat(int channels, int sampleRate) {
             throw new IllegalArgumentException("Parameter must be greater than 0!");
         }
     }
+
+    public int bytesPerFrame() {
+        return channels * 4;
+    }
+
+    public int calculateBufferSize(int framesCount) {
+        return framesCount * bytesPerFrame();
+    }
 }

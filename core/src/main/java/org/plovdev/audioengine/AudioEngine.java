@@ -1,7 +1,7 @@
 package org.plovdev.audioengine;
 
-import org.plovdev.audioengine.api.Track;
 import org.plovdev.audioengine.api.TrackPlayer;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.engineconfig.AudioEngineConfig;
 import org.plovdev.audioengine.exceptions.AudioEngineException;
@@ -80,13 +80,6 @@ public interface AudioEngine extends AutoCloseable {
      * @throws org.plovdev.audioengine.exceptions.loaders.TrackLoadException if loading fails
      */
     Track loadTrack(URI uri);
-
-    /**
-     * Creates a new track mixer instance.
-     *
-     * @return new track mixer
-     */
-    TrackMixer createTrackMixer();
 
     /**
      * Creates a new player instance for the specified track.
