@@ -1,6 +1,5 @@
 package org.plovdev.audioengine.loaders.wav.read;
 
-import org.plovdev.audioengine.loaders.wav.chunks.DataChunk;
 import org.plovdev.audioengine.loaders.wav.chunks.FormatChunk;
 import org.plovdev.audioengine.loaders.wav.chunks.ListChunk;
 import org.plovdev.audioengine.loaders.wav.struct.Chunk;
@@ -31,15 +30,6 @@ public class WavParser {
 
     public List<Chunk> getChunks() {
         return chunks;
-    }
-
-    public DataChunk getDataChunk() {
-        for (Chunk chunk : getChunks()) {
-            if (chunk instanceof DataChunk) {
-                return (DataChunk) chunk;
-            }
-        }
-        return null;
     }
 
     public FormatChunk getFormatChunk() {

@@ -3,8 +3,8 @@ package org.plovdev.audioengine;
 import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.plovdev.audioengine.api.NativeTrackPlayer;
-import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.api.TrackPlayer;
+import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.devices.AudioDeviceInfo;
 import org.plovdev.audioengine.devices.AudioDeviceManager;
 import org.plovdev.audioengine.engineconfig.AudioEngineConfig;
@@ -15,7 +15,6 @@ import org.plovdev.audioengine.format.TrackFormat;
 import org.plovdev.audioengine.loaders.TrackExporter;
 import org.plovdev.audioengine.loaders.TrackLoader;
 import org.plovdev.audioengine.loaders.TrackLoaderManager;
-import org.plovdev.audioengine.mixer.NativeTrackMixer;
 import org.plovdev.audioengine.mixer.TrackMixer;
 import org.plovdev.audioengine.utils.NativeLibraryUnpacker;
 import org.plovdev.audioengine.utils.TrackLoaderSearcher;
@@ -25,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -147,24 +145,6 @@ public class NativeAudioEngine implements AudioEngine {
             }
         }
         throw new TrackLoadException("Loader not found fot this track source(input stream).");
-    }
-
-    @Override
-    public Track loadTrack(@NotNull URI uri) throws TrackLoadException {
-        checkIfInited();
-        for (TrackLoaderManager manager : getAvailableLoaders()) {
-            TrackLoader loader = manager.getTrackLoader();
-            if (manager.isSupported(uri)) {
-                return loader.loadTrack(uri);
-            }
-        }
-        throw new TrackLoadException("Loader not found fot this track source.");
-    }
-
-    @Override
-    public TrackMixer createTrackMixer() {
-        checkIfInited();
-        return new NativeTrackMixer();
     }
 
     @Override

@@ -6,7 +6,6 @@ import org.plovdev.audioengine.format.TrackFormat;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
 
 /**
  * Central management point for track loading and processing.
@@ -61,12 +60,4 @@ public interface TrackLoaderManager {
      * @return true if stream format is supported
      */
     boolean isSupported(@NotNull InputStream stream);
-
-    /**
-     * Checks if this loader supports the given URI.
-     *
-     * @param uri URI to check
-     * @return true if URI protocol and format are supported
-     */
-    boolean isSupported(@NotNull URI uri);
 }

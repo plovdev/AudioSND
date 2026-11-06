@@ -10,11 +10,11 @@ public interface AudioProducer {
      * Load next chunk in queue.
      *
      * @param queueToLoad queue in loader will load chunk
-     * @return available bytes
+     * @return available bytes in source(like file)
      */
     int loadNextChunk(Deque<ByteBuffer> queueToLoad);
 
-    void awaitChunkLoaded();
+    void awaitChunkLoaded() throws InterruptedException;
 
     void setPointer(long position);
 

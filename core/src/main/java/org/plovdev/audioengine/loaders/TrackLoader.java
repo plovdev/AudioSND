@@ -8,7 +8,6 @@ import org.plovdev.audioengine.metadata.TrackMetadata;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
 
 /**
  * Loads audio tracks from various sources.
@@ -49,20 +48,6 @@ public interface TrackLoader {
     Track loadTrack(@NotNull InputStream stream);
 
     /**
-     * Loads and decodes audio track from a URI.
-     * <p>
-     * Supports file://, http://, https:// and other protocols
-     * depending on implementation.
-     * </p>
-     *
-     * @param uri source URI
-     * @return track ready processing
-     * @throws org.plovdev.audioengine.exceptions.loaders.TrackLoadException if loading fails or format is not supported
-     */
-    @NotNull
-    Track loadTrack(@NotNull URI uri);
-
-    /**
      * Reads complete metadata from an audio file.
      *
      * @param src source file
@@ -81,16 +66,6 @@ public interface TrackLoader {
      */
     @NotNull
     TrackMetadata readTrackMetadata(@NotNull InputStream src);
-
-    /**
-     * Reads complete metadata from a URI.
-     *
-     * @param src source URI
-     * @return metadata including technical info, tags and artwork
-     * @throws org.plovdev.audioengine.exceptions.loaders.TrackLoadException if metadata cannot be read
-     */
-    @NotNull
-    TrackMetadata readTrackMetadata(@NotNull URI src);
 
     /**
      * Extracts only technical audio format from a file.
@@ -114,16 +89,6 @@ public interface TrackLoader {
      */
     @NotNull
     TrackFormat getTrackFormat(@NotNull InputStream src);
-
-    /**
-     * Extracts only technical audio format from a URI.
-     *
-     * @param src source URI
-     * @return audio format (sample rate, channels, bit depth, etc.)
-     * @throws org.plovdev.audioengine.exceptions.loaders.TrackLoadException if format cannot be determined
-     */
-    @NotNull
-    TrackFormat getTrackFormat(@NotNull URI src);
 
     /**
      * Sets global listener for all load operations.

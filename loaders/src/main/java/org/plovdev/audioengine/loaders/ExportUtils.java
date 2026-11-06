@@ -1,13 +1,11 @@
 package org.plovdev.audioengine.loaders;
 
 import org.jspecify.annotations.NonNull;
-import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.time.Duration;
-import java.util.List;
 
 public class ExportUtils {
     public static byte @NonNull [] intToLittleEndian(int value) {
@@ -51,20 +49,6 @@ public class ExportUtils {
             bos.write(buffer, 0, bytesRead);
         }
         return bos.toByteArray();
-    }
-
-    public static @NonNull File getFile(@NonNull File file, List<PathLocator> locators) {
-        if (!file.exists()) {
-            for (PathLocator locator : locators) {
-                String newPath = locator.getPath().toString() + "/" + file.toPath();
-                File newFile = new File(newPath);
-                if (newFile.exists()) {
-                    return newFile;
-                }
-            }
-            throw new TrackLoadException("Track not found!");
-        }
-        return file;
     }
 
     public static Duration calculateDuration(long totalSamples, int sampleRate) {

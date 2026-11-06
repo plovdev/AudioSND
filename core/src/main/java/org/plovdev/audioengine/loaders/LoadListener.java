@@ -20,17 +20,20 @@ public interface LoadListener {
      *
      * @param total total size in bytes, or {@code -1} if unknown
      */
-    void onLoadStarted(long total);
+    default void onLoadStarted(long total) {
+    }
 
     /**
      * Called when loading completes successfully.
      */
-    void onLoadFinished();
+    default void onLoadFinished() {
+    }
 
     /**
      * Called when loading fails.
      *
      * @param error detailed exception describing the failure
      */
-    void onLoadFailed(TrackLoadException error);
+    default void onLoadFailed(TrackLoadException error) {
+    }
 }

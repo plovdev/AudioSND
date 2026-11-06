@@ -15,12 +15,11 @@ public class MicrophoneExample {
         try (AudioEngine engine = new NativeAudioEngine();
              NativeAudioRecorder microphone = new NativeAudioRecorder(AudioDeviceManager.getInstance().getDefaultInputAudioDevice().supportedFormats().getFirst().toAudioFormat(), AudioDeviceManager.getInstance().getDefaultInputAudioDevice())) {
             microphone.setOnChunkRecorded(() -> System.out.println("Chunk played"));
-            microphone.start(); // начинаем запись
-            Thread.sleep(10000); // условно, ждем сколько надо.
-            Track track = microphone.stop(); // получаем результат, и делаем что надо.
-
+            Track track = microphone.start(); // начинаем запись
             engine.createTrackPlayer(track).play();
-            Thread.sleep(track.getDuration());
+
+            Thread.sleep(10000); // условно, ждем сколько надо.
+            microphone.stop(); // получаем результат, и делаем что надо.
         } catch (Exception e) {
             log.error("Audio engine error: ", e);
         }

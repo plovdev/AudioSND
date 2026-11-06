@@ -313,7 +313,7 @@ public class NativeTrackPlayer implements TrackPlayer {
     @SuppressWarnings("resource")
     @Override
     public synchronized void setAudioDevice(AudioDeviceInfo newOutDevice) {
-        Objects.requireNonNull(newOutDevice, "Audio device cannot be null");
+        Objects.requireNonNull(newOutDevice, "AudioDevice");
         log.debug("Re-init audio device. Old device: {}, new device: {}", audioDeviceReference.get(), newOutDevice);
         pause();
 
@@ -375,6 +375,7 @@ public class NativeTrackPlayer implements TrackPlayer {
             }
 
             ByteBuffer chunk = audioSource.nextChunk();
+            System.out.println("In cycle");
             processChunk(chunk);
             audioDevice.write(chunk);
 

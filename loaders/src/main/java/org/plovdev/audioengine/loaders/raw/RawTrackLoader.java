@@ -1,99 +1,60 @@
 package org.plovdev.audioengine.loaders.raw;
 
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
+import org.plovdev.audioengine.api.source.AudioSource;
 import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
 import org.plovdev.audioengine.format.TrackFormat;
-import org.plovdev.audioengine.loaders.*;
+import org.plovdev.audioengine.loaders.ExportUtils;
+import org.plovdev.audioengine.loaders.InputStreamAudioProducer;
+import org.plovdev.audioengine.loaders.LoadListener;
+import org.plovdev.audioengine.loaders.TrackLoader;
 import org.plovdev.audioengine.metadata.TrackMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.net.URI;
-import java.nio.ByteBuffer;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import static org.plovdev.audioengine.loaders.ExportUtils.getFile;
 
 public class RawTrackLoader implements TrackLoader {
     private static final Logger log = LoggerFactory.getLogger(RawTrackLoader.class);
-    private final List<PathLocator> locators = new CopyOnWriteArrayList<>();
-    private LoadListener loadListener = new LoadListenerAdapter() {};
+    private LoadListener loadListener = new LoadListener() {
+    };
+
     private final TrackFormat format;
 
     public RawTrackLoader(TrackFormat format) {
         this.format = format;
     }
 
-    public void addLoactor(PathLocator locator) {
-        locators.add(locator);
-    }
-
     @Override
-    public Track loadTrack(@NonNull File base) throws TrackLoadException {
-        log.debug("Loading file: {}", base.getName());
-        File file = getFile(base, locators);
+    public Track loadTrack(@NonNull File file) throws TrackLoadException {
+        log.debug("Loading file: {}", file.getName());
         try (InputStream stream = new FileInputStream(file)) {
-            return loadTrack(stream);
+            return loadTrack(stream, file.length());
         } catch (Exception e) {
             throw new TrackLoadException("Failed to load RAW file: " + file.getName() + " - " + e);
         }
     }
 
     @Override
-    public Track loadTrack(InputStream stream) throws TrackLoadException {
-        ByteBuffer data;
-        try (stream) {
-            try {
-                int bytesRead = 0;
-                int chunkSize = 8192; // 8KB chunks
+    public @NotNull Track loadTrack(@NotNull InputStream stream) {
+        return loadTrack(stream, -1);
+    }
 
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                byte[] buffer = new byte[chunkSize];
+    public Track loadTrack(InputStream stream, long totalBytes) throws TrackLoadException {
+        int bytesPerSample = format.bitDepth() / 8;
+        int bytesPerFrame = format.channels() * bytesPerSample;
+        long totalFrames = totalBytes / bytesPerFrame;
+        Duration duration = ExportUtils.calculateDuration(totalFrames, format.sampleRate());
 
-                if (loadListener != null) {
-                    loadListener.onLoadStarted(-1);
-                }
+        TrackMetadata metadata = getTrackMetadata(duration);
+        metadata.setFileSize(totalBytes);
 
-                int n;
-                while ((n = stream.read(buffer)) != -1) {
-                    baos.write(buffer, 0, n);
-                    bytesRead += n;
-                }
-
-                byte[] allBytes = baos.toByteArray();
-                data = ByteBuffer.allocateDirect(allBytes.length);
-                data.order(format.byteOrder());
-                data.put(allBytes);
-                data.flip();
-
-                log.debug("File loaded successful: {} bytes", bytesRead);
-
-                if (loadListener != null) {
-                    loadListener.onLoadFinished();
-                }
-
-                int bytesPerSample = format.bitDepth() / 8;
-                int bytesPerFrame = format.channels() * bytesPerSample;
-                long totalFrames = allBytes.length / bytesPerFrame;
-                Duration duration = ExportUtils.calculateDuration(totalFrames, format.sampleRate());
-
-                TrackMetadata metadata = getTrackMetadata(duration);
-                metadata.setFileSize((long) allBytes.length);
-
-                //TODO: decode to float32
-                return new Track(data, duration, format.toAudioFormat(), metadata);
-
-            } catch (TrackLoadException e) {
-                if (loadListener != null) {
-                    loadListener.onLoadFailed(e);
-                }
-                throw new TrackLoadException("Failed to load RAW from stream: " + e.getMessage());
-            }
-        } catch (IOException e) { throw new TrackLoadException("Cann't load RAW: " + e.getMessage()); }
+        return new Track(new AudioSource(new InputStreamAudioProducer(stream, format, totalBytes)), duration, format.toAudioFormat(), metadata);
     }
 
     private @NonNull TrackMetadata getTrackMetadata(Duration duration) {
@@ -110,21 +71,6 @@ public class RawTrackLoader implements TrackLoader {
     }
 
     @Override
-    public Track loadTrack(@NonNull URI uri) throws TrackLoadException {
-        return switch (uri.getScheme()) {
-            case "file" -> loadTrack(new File(uri.toString()));
-            case "https", "http" -> {
-                try (InputStream stream = uri.toURL().openStream()) {
-                    yield loadTrack(stream);
-                } catch (Exception e) {
-                    throw new TrackLoadException(e.getMessage());
-                }
-            }
-            default -> throw new TrackLoadException("Unsupported URI scheme: " + uri.getScheme());
-        };
-    }
-
-    @Override
     public TrackMetadata readTrackMetadata(File src) {
         throw new UnsupportedOperationException("Raw not supports metadata");
     }
@@ -135,22 +81,12 @@ public class RawTrackLoader implements TrackLoader {
     }
 
     @Override
-    public TrackMetadata readTrackMetadata(URI src) {
-        throw new UnsupportedOperationException("Raw not supports metadata");
-    }
-
-    @Override
     public TrackFormat getTrackFormat(File src) {
         throw new UnsupportedOperationException("Raw not supports format");
     }
 
     @Override
     public TrackFormat getTrackFormat(InputStream src) {
-        throw new UnsupportedOperationException("Raw not supports format");
-    }
-
-    @Override
-    public TrackFormat getTrackFormat(URI src) {
         throw new UnsupportedOperationException("Raw not supports format");
     }
 

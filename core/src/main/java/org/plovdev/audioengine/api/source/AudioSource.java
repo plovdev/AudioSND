@@ -7,17 +7,19 @@ import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class AudioSource {
+    private static final int WATERMARK = 3;
     private final Deque<ByteBuffer> buffersQueue;
     private final AudioProducer producer;
     private boolean isFinished;
     private final long limit;
 
-    private final ByteBuffer emptyFallback = ByteBuffer.allocateDirect(0);
+    private final ByteBuffer EMPTY = ByteBuffer.allocateDirect(0);
 
     public AudioSource(@NonNull AudioProducer producer) {
         this.producer = producer;
         this.buffersQueue = new ConcurrentLinkedDeque<>();
         this.limit = producer.limit();
+        initQueue();
     }
 
     public void initQueue() {
@@ -25,32 +27,48 @@ public class AudioSource {
         if (available <= 0) {
             isFinished = true;
         } else {
-            producer.awaitChunkLoaded();
+            waitLoaded();
         }
     }
 
     public ByteBuffer nextChunk() {
-        if (isFinished && buffersQueue.isEmpty()) {
-            return emptyFallback;
+        ByteBuffer ready = buffersQueue.poll();
+        if (ready != null) {
+            requestMoreIfLow();
+            return ready;
         }
-
-        if (isFinished) {
-            return buffersQueue.poll();
-        }
+        if (isFinished) return null; // return null if finish
 
         int available = producer.loadNextChunk(buffersQueue);
         if (available <= 0) {
             isFinished = true;
-            ByteBuffer remaining = buffersQueue.poll();
-            return remaining != null ? remaining : emptyFallback;
+            return buffersQueue.poll();
         }
 
         if (buffersQueue.isEmpty()) {
-            producer.awaitChunkLoaded();
+            waitLoaded();
         }
 
-        ByteBuffer current = buffersQueue.poll();
-        return current != null ? current : emptyFallback;
+        return buffersQueue.poll();
+    }
+
+    private void waitLoaded() {
+        try {
+            producer.awaitChunkLoaded();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private void requestMoreIfLow() {
+        if (isFinished) return;
+        if (buffersQueue.size() >= WATERMARK) return;
+
+        int available = producer.loadNextChunk(buffersQueue);
+        if (available <= 0) {
+            isFinished = true;
+        }
     }
 
     public boolean isFinished() {

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
 
 import static org.plovdev.audioengine.loaders.ExportUtils.intToLittleEndian;
 
@@ -23,8 +22,6 @@ public class WavTrackExporter implements TrackExporter {
     @Override
     public void save(Track track, TrackFormat outputFormat, OutputStream outputStream) {
         try {
-            ByteBuffer trackData = track.getTrackData().rewind();
-
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             WavChunkWriterManager chunkWriter = new WavChunkWriterManager(buffer);
 

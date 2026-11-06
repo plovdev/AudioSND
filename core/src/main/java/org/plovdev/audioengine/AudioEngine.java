@@ -12,7 +12,6 @@ import org.plovdev.audioengine.mixer.TrackMixer;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -71,15 +70,6 @@ public interface AudioEngine extends AutoCloseable {
      * @throws org.plovdev.audioengine.exceptions.loaders.TrackLoadException if loading fails
      */
     Track loadTrack(InputStream stream);
-
-    /**
-     * Loads and decodes audio track from a URI.
-     *
-     * @param uri source URI
-     * @return decoded track
-     * @throws org.plovdev.audioengine.exceptions.loaders.TrackLoadException if loading fails
-     */
-    Track loadTrack(URI uri);
 
     /**
      * Creates a new player instance for the specified track.

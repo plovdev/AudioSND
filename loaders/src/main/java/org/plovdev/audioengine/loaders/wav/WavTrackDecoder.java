@@ -27,22 +27,23 @@ public class WavTrackDecoder implements TrackDecoder {
     public Track decode(Track input, @NonNull TrackFormat inputFormat) {
         TrackFormat.AudioCodec inCodec = inputFormat.audioCodec();
 
-        if (!allowFromDecodeCodecs.contains(inCodec)) {
-            log.warn("Unsupported codec.");
-            return input;
-        }
-
-        Duration inputDuration = input.getDuration();
-        TrackMetadata metadata = input.getMetaData();
-
-        ByteBuffer trackData = input.getTrackData();
-        AudioFormat outFormat = inputFormat.toAudioFormat();
-        return switch (inCodec) {
-            case ULAW -> new Track(new ULawDecoder().decode(trackData), inputDuration, outFormat, metadata);
-            case ALAW -> new Track(new ALawDecoder().decode(trackData), inputDuration, outFormat, metadata);
-            case IMA_ADPCM ->
-                    new Track(new IMAADPCMDecoder(1024).decode(trackData), inputDuration, outFormat, metadata);
-            default -> new Track(CoderUtils.decodeToFloat32(trackData, inCodec), inputDuration, outFormat, metadata);
-        };
+//        if (!allowFromDecodeCodecs.contains(inCodec)) {
+//            log.warn("Unsupported codec.");
+//            return input;
+//        }
+//
+//        Duration inputDuration = input.getDuration();
+//        TrackMetadata metadata = input.getMetaData();
+//
+//        ByteBuffer trackData = input.getTrackData();
+//        AudioFormat outFormat = inputFormat.toAudioFormat();
+//        return switch (inCodec) {
+//            case ULAW -> new Track(new ULawDecoder().decode(trackData), inputDuration, outFormat, metadata);
+//            case ALAW -> new Track(new ALawDecoder().decode(trackData), inputDuration, outFormat, metadata);
+//            case IMA_ADPCM ->
+//                    new Track(new IMAADPCMDecoder(1024).decode(trackData), inputDuration, outFormat, metadata);
+//            default -> new Track(CoderUtils.decodeToFloat32(trackData, inCodec), inputDuration, outFormat, metadata);
+//        };
+        return input;
     }
 }

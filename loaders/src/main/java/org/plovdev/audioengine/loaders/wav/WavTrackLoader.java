@@ -1,15 +1,17 @@
 package org.plovdev.audioengine.loaders.wav;
 
 import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
+import org.plovdev.audioengine.api.source.AudioSource;
 import org.plovdev.audioengine.api.source.Track;
 import org.plovdev.audioengine.exceptions.loaders.TrackLoadException;
 import org.plovdev.audioengine.format.TrackFormat;
+import org.plovdev.audioengine.loaders.InputStreamAudioProducer;
 import org.plovdev.audioengine.loaders.LoadListener;
 import org.plovdev.audioengine.loaders.TrackLoader;
 import org.plovdev.audioengine.loaders.format.TrackFormatUtils;
-import org.plovdev.audioengine.loaders.wav.chunks.DataChunk;
 import org.plovdev.audioengine.loaders.wav.chunks.FormatChunk;
 import org.plovdev.audioengine.loaders.wav.chunks.ListChunk;
 import org.plovdev.audioengine.loaders.wav.chunks.TagEntry;
@@ -23,54 +25,40 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.net.URI;
 import java.time.Duration;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import static org.plovdev.audioengine.loaders.ExportUtils.getFile;
 
 public class WavTrackLoader implements TrackLoader {
     private static final Logger log = LoggerFactory.getLogger(WavTrackLoader.class);
-    private final List<PathLocator> locators = new CopyOnWriteArrayList<>();
-    private LoadListener loadListener = new LoadListenerAdapter() {
+    private LoadListener loadListener = new LoadListener() {
     };
 
-    public void addLoactor(PathLocator locator) {
-        locators.add(locator);
-    }
-
     @Override
-    public Track loadTrack(@NonNull File base) throws TrackLoadException {
-        log.debug("Loading file: {}", base.getName());
-        File file = getFile(base, locators);
+    public Track loadTrack(@NonNull File file) throws TrackLoadException {
+        log.debug("Loading file: {}", file.getName());
         try (InputStream stream = new FileInputStream(file)) {
-            return loadTrack(stream);
+            return loadTrack(stream, file.length());
         } catch (Exception e) {
             throw new TrackLoadException("Failed to load WAV file: " + file.getName() + " - " + e);
         }
     }
 
     @Override
-    public Track loadTrack(InputStream stream) throws TrackLoadException {
+    public @NotNull Track loadTrack(@NotNull InputStream stream) {
+        return loadTrack(stream, -1);
+    }
+
+    public Track loadTrack(InputStream stream, long total) throws TrackLoadException {
         try {
-            int total = stream.available();
-            if (loadListener != null) {
-                loadListener.onLoadStarted(total);
-            }
             WavParser parser = new WavParser(stream);
             parser.parse();
             log.debug("File parsing finished, collect result...");
 
-            DataChunk chunk = parser.getDataChunk();
             FormatChunk formatChunk = parser.getFormatChunk();
             TrackFormat format = formatChunk.getFormat();
-
             ListChunk listChunk = parser.getListChunk();
-
-            Duration duration = Duration.ofMillis(TrackFormatUtils.calculateDurationMs(format, chunk.getSize()));
+            Duration duration = Duration.ofMillis(TrackFormatUtils.calculateDurationMs(format, total));
 
             TrackMetadata metadata = new TrackMetadata();
             metadata.setDuration(duration);
@@ -137,21 +125,12 @@ public class WavTrackLoader implements TrackLoader {
                 loadListener.onLoadFinished();
             }
 
-            return new WavTrackDecoder().decode(new Track(chunk.getData().order(format.byteOrder()), duration, format.toAudioFormat(), metadata), format);
+            return new Track(new AudioSource(new InputStreamAudioProducer(stream, format, total)), duration, format.toAudioFormat(), metadata);
         } catch (Exception e) {
             if (loadListener != null) {
                 loadListener.onLoadFailed(new TrackLoadException(e));
             }
             throw new TrackLoadException("Failed to load WAV from stream: " + e);
-        }
-    }
-
-    @Override
-    public Track loadTrack(URI uri) throws TrackLoadException {
-        try (InputStream stream = uri.toURL().openStream()) {
-            return loadTrack(stream);
-        } catch (Exception e) {
-            throw new TrackLoadException(e.getMessage());
         }
     }
 
@@ -166,22 +145,12 @@ public class WavTrackLoader implements TrackLoader {
     }
 
     @Override
-    public TrackMetadata readTrackMetadata(URI src) {
-        return null;
-    }
-
-    @Override
     public TrackFormat getTrackFormat(File src) {
         return null;
     }
 
     @Override
     public TrackFormat getTrackFormat(InputStream src) {
-        return null;
-    }
-
-    @Override
-    public TrackFormat getTrackFormat(URI src) {
         return null;
     }
 

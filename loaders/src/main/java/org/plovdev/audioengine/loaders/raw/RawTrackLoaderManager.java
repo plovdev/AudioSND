@@ -6,7 +6,6 @@ import org.plovdev.audioengine.loaders.*;
 
 import java.io.File;
 import java.io.InputStream;
-import java.net.URI;
 import java.util.List;
 
 import static org.plovdev.audioengine.format.TrackFormat.AudioCodec.*;
@@ -55,15 +54,5 @@ public class RawTrackLoaderManager implements TrackLoaderManager {
     @Override
     public boolean isSupported(InputStream stream) {
         throw new UnsupportedOperationException("Cann't check supports in RAW");
-    }
-
-    @Override
-    public boolean isSupported(@NonNull URI uri) {
-        return isSupported(new File(uri.getPath()));
-    }
-
-    @Override
-    public void registerPathLocator(PathLocator locator) {
-        loader.addLoactor(locator);
     }
 }

@@ -111,14 +111,4 @@ public class WavTrackLoaderManager implements TrackLoaderManager {
             }
         }
     }
-
-    @Override
-    public boolean isSupported(@NonNull URI uri) {
-        return isSupported(new File(uri.getPath()));
-    }
-
-    @Override
-    public void registerPathLocator(PathLocator locator) {
-        loader.addLoactor(locator);
-    }
 }

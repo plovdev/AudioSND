@@ -52,7 +52,7 @@ public final class TrackFormatUtils {
      * @param sizeInBytes file size in bytes
      * @return duration in milliseconds, or 0 if calculation fails
      */
-    public static long calculateDurationMs(@NonNull TrackFormat format, int sizeInBytes) {
+    public static long calculateDurationMs(@NonNull TrackFormat format, long sizeInBytes) {
         long sampleRate = format.sampleRate();
         long bitsPerSample = format.bitDepth();
         long channels = format.channels();
